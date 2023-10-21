@@ -3,7 +3,9 @@ import jwt_decode from 'jwt-decode';
 import { Menu, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
-
+import EditIcon from '@mui/icons-material/Edit';
+import PasswordIcon from '@mui/icons-material/Password';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const Dropdown = () => {
     const navigate = useNavigate();
@@ -19,8 +21,8 @@ const Dropdown = () => {
         <div className="relative text-right">
             <Menu as="div" className="relative inline-block text-left">
                 <div>
-                    <Menu.Button className="inline-flex w-full justify-center rounded-md bg-black bg-opacity-20 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-                        { mssv }
+                    <Menu.Button className="inline-flex w-full justify-center rounded-md bg-white bg-opacity-20 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+                        {mssv}
                         <ChevronDownIcon
                             className="ml-2 -mr-1 h-5 w-5 text-violet-200 hover:text-violet-100"
                             aria-hidden="true"
@@ -40,48 +42,52 @@ const Dropdown = () => {
                         <div className="px-1 py-1 ">
                             <Menu.Item>
                                 {({ active }) => (
-                                    <button
-                                        className={`${active ? 'bg-violet-500 text-white' : 'text-gray-900'
-                                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                                    >
-                                        {active ? (
-                                            <EditActiveIcon
-                                                className="mr-2 h-5 w-5"
-                                                aria-hidden="true"
-                                            />
-                                        ) : (
-                                            <EditInactiveIcon
-                                                className="mr-2 h-5 w-5"
-                                                aria-hidden="true"
-                                            />
-                                        )}
-                                        Thông tin cá nhân
-                                    </button>
+                                    <Link to="/thongtincanhan">
+                                        <button
+                                            className={`${active ? 'bg-blue-500 text-white' : 'text-blue-600'
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm font-medium`}
+                                        >
+                                            {active ? (
+                                                <EditIcon
+                                                    className="mr-2 h-5 w-5"
+                                                    aria-hidden="true"
+                                                />
+                                            ) : (
+                                                <EditIcon
+                                                    className="mr-2 h-5 w-5 text-bue-400"
+                                                    aria-hidden="true"
+                                                />
+                                            )}
+                                            Thông tin cá nhân
+                                        </button>
+                                    </Link>
                                 )}
                             </Menu.Item>
                             <Menu.Item>
                                 {({ active }) => (
-                                    <button
-                                        className={`${active ? 'bg-violet-500 text-white' : 'text-gray-900'
-                                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                                    >
-                                        {active ? (
-                                            <DuplicateActiveIcon
-                                                className="mr-2 h-5 w-5"
-                                                aria-hidden="true"
-                                            />
-                                        ) : (
-                                            <DuplicateInactiveIcon
-                                                className="mr-2 h-5 w-5"
-                                                aria-hidden="true"
-                                            />
-                                        )}
-                                        Đăng ký phòng
-                                    </button>
+                                    <Link to="/doimatkhau">
+                                        <button
+                                            className={`${active ? 'bg-blue-500 text-white' : 'text-blue-600'
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm font-medium`}
+                                        >
+                                            {active ? (
+                                                <PasswordIcon
+                                                    className="mr-2 h-5 w-5"
+                                                    aria-hidden="true"
+                                                />
+                                            ) : (
+                                                <PasswordIcon
+                                                    className="mr-2 h-5 w-5"
+                                                    aria-hidden="true"
+                                                />
+                                            )}
+                                            Đổi mật khẩu
+                                        </button>
+                                    </Link>
                                 )}
                             </Menu.Item>
                         </div>
-                        <div className="px-1 py-1">
+                        {/* <div className="px-1 py-1">
                             <Menu.Item>
                                 {({ active }) => (
                                     <button
@@ -124,23 +130,23 @@ const Dropdown = () => {
                                     </button>
                                 )}
                             </Menu.Item>
-                        </div>
+                        </div> */}
                         <div className="px-1 py-1">
                             <Menu.Item>
                                 {({ active }) => (
                                     <button
                                         onClick={handleLogout}
-                                        className={`${active ? 'bg-violet-500 text-white' : 'text-gray-900'
-                                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                                        className={`${active ? 'bg-blue-500 text-white' : 'text-blue-600'
+                                            } group flex w-full items-center rounded-md px-2 py-2 text-sm font-semibold`}
                                     >
                                         {active ? (
-                                            <OutActiveIcon
-                                                className="mr-2 h-5 w-5 text-violet-400"
+                                            <LogoutIcon
+                                                className="mr-2 h-5 w-5"
                                                 aria-hidden="true"
                                             />
                                         ) : (
-                                            <OutInactiveIcon
-                                                className="mr-2 h-5 w-5 text-violet-400"
+                                            <LogoutIcon
+                                                className="mr-2 h-5 w-5"
                                                 aria-hidden="true"
                                             />
                                         )}
@@ -153,200 +159,6 @@ const Dropdown = () => {
                 </Transition>
             </Menu>
         </div>
-    )
-}
-
-function EditInactiveIcon(props) {
-    return (
-        <svg
-            {...props}
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <path
-                d="M4 13V16H7L16 7L13 4L4 13Z"
-                fill="#EDE9FE"
-                stroke="#A78BFA"
-                strokeWidth="2"
-            />
-        </svg>
-    )
-}
-
-function EditActiveIcon(props) {
-    return (
-        <svg
-            {...props}
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <path
-                d="M4 13V16H7L16 7L13 4L4 13Z"
-                fill="#8B5CF6"
-                stroke="#C4B5FD"
-                strokeWidth="2"
-            />
-        </svg>
-    )
-}
-
-function DuplicateInactiveIcon(props) {
-    return (
-        <svg
-            {...props}
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <path
-                d="M4 4H12V12H4V4Z"
-                fill="#EDE9FE"
-                stroke="#A78BFA"
-                strokeWidth="2"
-            />
-            <path
-                d="M8 8H16V16H8V8Z"
-                fill="#EDE9FE"
-                stroke="#A78BFA"
-                strokeWidth="2"
-            />
-        </svg>
-    )
-}
-
-function DuplicateActiveIcon(props) {
-    return (
-        <svg
-            {...props}
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <path
-                d="M4 4H12V12H4V4Z"
-                fill="#8B5CF6"
-                stroke="#C4B5FD"
-                strokeWidth="2"
-            />
-            <path
-                d="M8 8H16V16H8V8Z"
-                fill="#8B5CF6"
-                stroke="#C4B5FD"
-                strokeWidth="2"
-            />
-        </svg>
-    )
-}
-
-function ArchiveInactiveIcon(props) {
-    return (
-        <svg
-            {...props}
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <rect
-                x="5"
-                y="8"
-                width="10"
-                height="8"
-                fill="#EDE9FE"
-                stroke="#A78BFA"
-                strokeWidth="2"
-            />
-            <rect
-                x="4"
-                y="4"
-                width="12"
-                height="4"
-                fill="#EDE9FE"
-                stroke="#A78BFA"
-                strokeWidth="2"
-            />
-            <path d="M8 12H12" stroke="#A78BFA" strokeWidth="2" />
-        </svg>
-    )
-}
-
-function ArchiveActiveIcon(props) {
-    return (
-        <svg
-            {...props}
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <rect
-                x="5"
-                y="8"
-                width="10"
-                height="8"
-                fill="#8B5CF6"
-                stroke="#C4B5FD"
-                strokeWidth="2"
-            />
-            <rect
-                x="4"
-                y="4"
-                width="12"
-                height="4"
-                fill="#8B5CF6"
-                stroke="#C4B5FD"
-                strokeWidth="2"
-            />
-            <path d="M8 12H12" stroke="#A78BFA" strokeWidth="2" />
-        </svg>
-    )
-}
-
-function MoveInactiveIcon(props) {
-    return (
-        <svg
-            {...props}
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <path d="M10 4H16V10" stroke="#A78BFA" strokeWidth="2" />
-            <path d="M16 4L8 12" stroke="#A78BFA" strokeWidth="2" />
-            <path d="M8 6H4V16H14V12" stroke="#A78BFA" strokeWidth="2" />
-        </svg>
-    )
-}
-
-function MoveActiveIcon(props) {
-    return (
-        <svg
-            {...props}
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <path d="M10 4H16V10" stroke="#C4B5FD" strokeWidth="2" />
-            <path d="M16 4L8 12" stroke="#C4B5FD" strokeWidth="2" />
-            <path d="M8 6H4V16H14V12" stroke="#C4B5FD" strokeWidth="2" />
-        </svg>
-    )
-}
-
-function OutInactiveIcon(props) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-purple-500">
-            <path fillRule="evenodd" d="M3 4.25A2.25 2.25 0 015.25 2h5.5A2.25 2.25 0 0113 4.25v2a.75.75 0 01-1.5 0v-2a.75.75 0 00-.75-.75h-5.5a.75.75 0 00-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 00.75-.75v-2a.75.75 0 011.5 0v2A2.25 2.25 0 0110.75 18h-5.5A2.25 2.25 0 013 15.75V4.25z" clipRule="evenodd" />
-            <path fillRule="evenodd" d="M19 10a.75.75 0 00-.75-.75H8.704l1.048-.943a.75.75 0 10-1.004-1.114l-2.5 2.25a.75.75 0 000 1.114l2.5 2.25a.75.75 0 101.004-1.114l-1.048-.943h9.546A.75.75 0 0019 10z" clipRule="evenodd" />
-        </svg>
-    )
-}
-
-function OutActiveIcon(props) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 ">
-            <path fillRule="evenodd" d="M3 4.25A2.25 2.25 0 015.25 2h5.5A2.25 2.25 0 0113 4.25v2a.75.75 0 01-1.5 0v-2a.75.75 0 00-.75-.75h-5.5a.75.75 0 00-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 00.75-.75v-2a.75.75 0 011.5 0v2A2.25 2.25 0 0110.75 18h-5.5A2.25 2.25 0 013 15.75V4.25z" clipRule="evenodd" />
-            <path fillRule="evenodd" d="M19 10a.75.75 0 00-.75-.75H8.704l1.048-.943a.75.75 0 10-1.004-1.114l-2.5 2.25a.75.75 0 000 1.114l2.5 2.25a.75.75 0 101.004-1.114l-1.048-.943h9.546A.75.75 0 0019 10z" clipRule="evenodd" />
-        </svg>
     )
 }
 

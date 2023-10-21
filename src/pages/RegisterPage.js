@@ -1,15 +1,15 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { checkImageExtension, checkEmail, checkPhoneNumber } from "../utils/validation"
+import { register } from "../api/student.api";
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
         fullName: "",
         email: "",
         password: "",
-        avatar: null,
         mssv: "",
         address: "",
         classs: "",
@@ -22,6 +22,7 @@ const RegisterPage = () => {
         relationship: "",
         relativeNumberPhone: "",
     });
+    const [avatar, setAvatar] = useState("");
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -30,33 +31,46 @@ const RegisterPage = () => {
             [name]: value,
         });
     };
-
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
-        setFormData({
-            ...formData,
-            avatar: file,
-        });
+        setAvatar(file);
     };
+
+    const Navigate = useNavigate();
+
+    const toastOptions = { position: "bottom-right", autoClose: 1000 };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log(formData);
-        if (!formData.avatar || !formData.address || !formData.birthday || !formData.classs || !formData.course || !formData.email || !formData.fullName || !formData.gender || !formData.identificationNumber || !formData.mssv || !formData.numberPhone || !formData.password || !formData.relationship || !formData.relativeName || !formData.relativeNumberPhone)
-            return toast.error("Vui lòng điền đầy đủ thông tin!", { position: "bottom-right", autoClose: 1000 });
+        if (!avatar || !formData.address || !formData.birthday || !formData.classs || !formData.course || !formData.email || !formData.fullName || !formData.gender || !formData.identificationNumber || !formData.mssv || !formData.numberPhone || !formData.password || !formData.relationship || !formData.relativeName || !formData.relativeNumberPhone)
+            return toast.error("Vui lòng điền đầy đủ thông tin!", toastOptions);
+        // console.log(formData.avatar);
 
-        if (!checkImageExtension(formData.avatar))
-            return toast.error("Ảnh không hợp lệ (.jpg | .png | .jpeg)", { position: "bottom-right", autoClose: 1000 });
-            
+        // if (!checkImageExtension(formData.avatar)) {
+        //     console.log(checkImageExtension(formData.avatar));s
+        //     return toast.error("Ảnh không hợp lệ (.jpg | .png | .jpeg)", toastOptions);
+        // }
         if (!checkEmail(formData.email))
-            return toast.error("Địa chỉ email không hợp lệ!", { position: "bottom-right", autoClose: 1000 });
+            return toast.error("Địa chỉ email không hợp lệ!", toastOptions);
 
         if (!checkPhoneNumber(formData.numberPhone))
-            return toast.error("Số điện thoại không hợp lệ!", { position: "bottom-right", autoClose: 1000 });
+            return toast.error("Số điện thoại không hợp lệ!", toastOptions);
 
         if (!checkPhoneNumber(formData.relativeNumberPhone))
-            return toast.error("Số điện thoại người thân không hợp lệ!", { position: "bottom-right", autoClose: 1000 });
-        
+            return toast.error("Số điện thoại người thân không hợp lệ!", toastOptions);
+        const fetchApi = async () => {
+            const res = await register(formData, avatar);
+            if (res.status == 200) {
+                toast.success("Đăng ký thành công.", toastOptions);
+                setTimeout(() => {
+                    Navigate("/");
+                }, 2500);
+            } else {
+                return toast.error("Tài khoản đã tồn tại.", toastOptions);
+            }
+
+        };
+        fetchApi();
     };
 
     const courseList = ["44", "45", "46", "47", "48", "49", "50"];
@@ -71,9 +85,9 @@ const RegisterPage = () => {
                             {/* cột 1 */}
                             <div className="w-full md:w-1/2 px-6 my-2 ">
                                 <div className="relative ">
-                                    {formData.avatar ? (
+                                    {avatar ? (
                                         <img
-                                            src={URL.createObjectURL(formData.avatar)}
+                                            src={URL.createObjectURL(avatar)}
                                             alt="Avatar"
                                             className="w-full h-48 object-cover"
                                         />
@@ -100,7 +114,7 @@ const RegisterPage = () => {
                                     </span>
                                     <input
                                         type="text"
-                                        placeholder="Nguyễn Văn A"
+                                        placeholder="Quách Huy Thịnh"
                                         value={formData.fullName}
                                         name="fullName"
                                         onChange={handleChange}
@@ -113,7 +127,7 @@ const RegisterPage = () => {
                                     </span>
                                     <input
                                         type="text"
-                                        placeholder="B1900000"
+                                        placeholder="B1910454"
                                         value={formData.mssv}
                                         name="mssv"
                                         onChange={handleChange}
@@ -139,7 +153,7 @@ const RegisterPage = () => {
                                     </span>
                                     <input
                                         type="email"
-                                        placeholder="nguyenvana123@gmail.com"
+                                        placeholder="thinhb1910454@student.ctu.edu.vn"
                                         name="email"
                                         value={formData.email}
                                         onChange={handleChange}
@@ -152,7 +166,7 @@ const RegisterPage = () => {
                                     </span>
                                     <input
                                         type="text"
-                                        placeholder="0123456789"
+                                        placeholder="0776867325"
                                         name="numberPhone"
                                         value={formData.numberPhone}
                                         onChange={handleChange}
@@ -193,7 +207,7 @@ const RegisterPage = () => {
                                     </span>
                                     <input
                                         type="text"
-                                        placeholder="DI19V7Ax"
+                                        placeholder="DI19V7A8"
                                         name="classs"
                                         value={formData.classs}
                                         onChange={handleChange}

@@ -8,6 +8,7 @@ export const register = async (data, avatar) => {
         formData.append('password', data.password);
         formData.append('mssv', data.mssv);
         formData.append('address', data.address);
+        formData.append('major', data.major);
         formData.append('classs', data.classs);
         formData.append('course', data.course);
         formData.append('birthday', data.birthday);

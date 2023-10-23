@@ -48,9 +48,11 @@ const Header = () => {
                     <a href="#" className="text-xl font-bold leading-6 text-white">
                         TIN TỨC - SỰ KIỆN
                     </a>
-                    <a href="#" className="text-xl font-bold leading-6 text-white">
-                        GIỚI THIỆU
-                    </a>
+                    <Link to="/gioithieu">
+                        <button type='button' className="text-xl font-bold leading-6 text-white">
+                            GIỚI THIỆU
+                        </button>
+                    </Link>
                     <a href="#" className="text-xl font-bold leading-6 text-white">
                         NỘI QUY
                     </a>

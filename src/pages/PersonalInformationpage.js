@@ -88,16 +88,16 @@ const PersonalInformation = () => {
                                 </tr>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
                                     <td className="px-6 py-2 sm:text-sm text-xs">
+                                        Ngành học
+                                    </td>
+                                    <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
+                                        Công nghệ thông tin
+                                    </td>
+                                    <td className="px-6 py-2 sm:text-sm text-xs">
                                         Mã lớp
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
                                         DI19V7A8
-                                    </td>
-                                    <td className="px-6 py-2 sm:text-sm text-xs">
-                                        Khóa
-                                    </td>
-                                    <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        45
                                     </td>
                                 </tr>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -108,30 +108,29 @@ const PersonalInformation = () => {
                                         Quách Văn Nguyên
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs">
-                                        Số điện thoại người thân
+                                        Khóa
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        0776867325
+                                        45
                                     </td>
                                 </tr>
                                 <tr>
                                     <td className="px-6 py-2 sm:text-sm text-xs">
-                                        Mối quan hệ
+                                        Số điện thoại người thân
                                     </td>
                                     <td className="px-6 py-2 bg-gray-50 dark:bg-gray-800 sm:text-sm text-xs">
-                                        Bố
+                                        0776867325
                                     </td>
                                     <td className="px-6 py-2">
-                                        {' '}
+                                        Mối quan hệ
                                     </td>
                                     <td className="px-6 py-2 bg-gray-50 dark:bg-gray-800">
-                                        {' '}
+                                        Bố
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-
                 </Grid>
             </Container>
             <Footer />

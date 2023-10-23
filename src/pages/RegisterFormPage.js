@@ -4,15 +4,9 @@ import Footer from "../components/Footer";
 import Header from "../components/Header";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import Slide from '@mui/material/Slide';
 import { toast } from 'react-toastify';
-
-const Transition = React.forwardRef(function Transition(props, ref) {
-    return <Slide direction="up" ref={ref} {...props} />;
-});
+import { Transition } from '../utils/createTheme';
 
 const RegisterFormPage = () => {
 
@@ -37,7 +31,7 @@ const RegisterFormPage = () => {
             <Container style={{ flex: 1 }} maxWidth="sm">
                 <Grid container sx={{ marginTop: 1, marginBottom: 1 }}>
                     <Grid item xs={7}>
-                        <Typography align="center" variant="h5" color={"chocolate"}>Thông tin đăng ký</Typography>
+                        <Typography align="center" variant="h5" color={"red"}>Thông tin đăng ký</Typography>
                     </Grid>
                     <Grid item xs={5}>
                         <Button onClick={handleClickOpen} size="small" variant="contained">Hủy đăng ký</Button>

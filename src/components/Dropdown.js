@@ -6,6 +6,7 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import EditIcon from '@mui/icons-material/Edit';
 import PasswordIcon from '@mui/icons-material/Password';
 import LogoutIcon from '@mui/icons-material/Logout';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 
 const Dropdown = () => {
     const navigate = useNavigate();
@@ -38,7 +39,7 @@ const Dropdown = () => {
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                 >
-                    <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <Menu.Items className="absolute z-50 right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <div className="px-1 py-1 ">
                             <Menu.Item>
                                 {({ active }) => (
@@ -82,6 +83,29 @@ const Dropdown = () => {
                                                 />
                                             )}
                                             Đổi mật khẩu
+                                        </button>
+                                    </Link>
+                                )}
+                            </Menu.Item>
+                            <Menu.Item>
+                                {({ active }) => (
+                                    <Link to="/thongtinphong">
+                                        <button
+                                            className={`${active ? 'bg-blue-500 text-white' : 'text-blue-600'
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm font-medium`}
+                                        >
+                                            {active ? (
+                                                <MeetingRoomIcon
+                                                    className="mr-2 h-5 w-5"
+                                                    aria-hidden="true"
+                                                />
+                                            ) : (
+                                                <MeetingRoomIcon
+                                                    className="mr-2 h-5 w-5"
+                                                    aria-hidden="true"
+                                                />
+                                            )}
+                                            Thông tin phòng ở
                                         </button>
                                     </Link>
                                 )}

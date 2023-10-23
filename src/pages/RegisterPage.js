@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { checkImageExtension, checkEmail, checkPhoneNumber } from "../utils/validation"
 import { register } from "../api/student.api";
+import { courseList, majorList } from "../utils/data";
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ const RegisterPage = () => {
         password: "",
         mssv: "",
         address: "",
+        major: "",
         classs: "",
         course: "",
         birthday: "",
@@ -73,7 +75,7 @@ const RegisterPage = () => {
         fetchApi();
     };
 
-    const courseList = ["44", "45", "46", "47", "48", "49", "50"];
+   
 
     return (
         <div className="bg-cover bg-no-repeat bg-fixed bg-center bg-[url('https://images.unsplash.com/photo-1484242857719-4b9144542727?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1280&q=80')]">
@@ -89,10 +91,10 @@ const RegisterPage = () => {
                                         <img
                                             src={URL.createObjectURL(avatar)}
                                             alt="Avatar"
-                                            className="w-full h-48 object-cover"
+                                            className="w-full h-32 object-cover"
                                         />
                                     ) : (
-                                        <div className="w-full h-48 bg-gray-300 flex items-center justify-center">
+                                        <div className="w-full h-32 bg-gray-300 flex items-center justify-center">
                                             Chưa có hình ảnh
                                         </div>
                                     )}
@@ -173,9 +175,6 @@ const RegisterPage = () => {
                                         className="w-full p-2 border border-gray-300 rounded-md"
                                     />
                                 </div>
-                            </div>
-                            {/* Cột 2 */}
-                            <div className="w-full md:w-1/2 px-6">
                                 <div className="mb-2">
                                     <span className="block text-sm font-medium text-gray-600">
                                         Mã số CCCD
@@ -189,6 +188,9 @@ const RegisterPage = () => {
                                         className="w-full p-2 border border-gray-300 rounded-md"
                                     />
                                 </div>
+                            </div>
+                            {/* Cột 2 */}
+                            <div className="w-full md:w-1/2 px-6 py-3">
                                 <div className="mb-2">
                                     <span className="block text-sm font-medium text-gray-600">
                                         Ngày sinh
@@ -213,6 +215,20 @@ const RegisterPage = () => {
                                         onChange={handleChange}
                                         className="w-full p-2 border border-gray-300 rounded-md"
                                     />
+                                </div>
+                                <div className="mb-2">
+                                    <span className="block text-sm font-medium text-gray-600">
+                                        Ngành học
+                                    </span>
+                                    <select onChange={handleChange} name="major" className="w-full p-2 border border-gray-300 rounded-md">
+                                        {
+                                            majorList && majorList.map((e, index) => (
+                                                <option key={index} value={e}>
+                                                    {e}
+                                                </option>
+                                            ))
+                                        }
+                                    </select>
                                 </div>
                                 <div className="mb-2">
                                     <span className="block text-sm font-medium text-gray-600">
@@ -295,7 +311,7 @@ const RegisterPage = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="w-full p-6 flex justify-around">
+                        <div className="w-full px-6 py-2 flex justify-between">
                             <button
                                 type="submit"
                                 className="w-5/12 bg-blue-500 text-white text-center px-4 py-2 rounded-md hover:bg-blue-700"

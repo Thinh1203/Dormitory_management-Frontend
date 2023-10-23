@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { Typography, Button, Tooltip, Grid, Paper, TableRow, TableHead, TableContainer, TableCell, TableBody, Table, Pagination, Stack } from "@mui/material";
+import { Typography, Button, Tooltip, Grid, Paper, TableRow, TableHead, TableContainer, TableCell, TableBody, Table, Pagination, Stack, TextField } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Dialog from '@mui/material/Dialog';
@@ -16,6 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { Link } from 'react-router-dom';
+
 
 function createData(maPhong, maToaNha, loaiPhong, phongNam, trangThai, sucChua, soChoOThucTe, daO, conTrong, gia, phongNauAn) {
     return { maPhong, maToaNha, loaiPhong, phongNam, trangThai, sucChua, soChoOThucTe, daO, conTrong, gia, phongNauAn };
@@ -89,11 +90,12 @@ const HomePage = () => {
                     </Grid>
                     <Grid item xs={4}>
                         <Link to="/dondangky">
-                            <Typography variant="h6" align='left' className='pl-4 text-blue-700 font-bold underline hover:text-red-400 cursor-pointer'>
+                            <Typography variant="h6" align='left' className='pl-4 text-blue-700 font-bold underline hover:text-red-500 cursor-pointer'>
                                 Xem đơn đăng ký
                             </Typography>
                         </Link>
                     </Grid>
+
                     <Grid item xs={4}>
                         <Typography align='right' className='px-4'>
                             <Tooltip title="Filter list" >
@@ -274,10 +276,10 @@ const HomePage = () => {
                                             <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
                                                 Đơn giá (VNĐ)
                                             </Paper>
-                                            <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
+                                            <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 6, marginBottom: 5, textAlign: "center" }}>
                                                 Năm học
                                             </Paper>
-                                            <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
+                                            <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 6, marginBottom: 5, textAlign: "center" }}>
                                                 Thời gian (tháng)
                                             </Paper>
 
@@ -299,12 +301,12 @@ const HomePage = () => {
                                                 Không
                                             </Paper>
                                             <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
-                                                170.000
+                                                170.000đ
                                             </Paper>
                                             <FormControl sx={{ maxHeight: 250, marginBottom: "2px" }} fullWidth size='small'>
                                                 <Select
 
-                                                    sx={{ textAlign: "center" }}
+
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
                                                     value={gioiTinh}
@@ -319,7 +321,6 @@ const HomePage = () => {
                                             </FormControl>
                                             <FormControl sx={{ maxHeight: 250 }} fullWidth size='small'>
                                                 <Select
-                                                    sx={{ textAlign: "center" }}
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
                                                     value={thoiGian}
@@ -327,7 +328,7 @@ const HomePage = () => {
                                                     onChange={(e) => setThoiGian(e.target.value)}
                                                     MenuProps={MenuProps}
                                                 >
-                                                    <MenuItem textAlign="center" value="1">1</MenuItem>
+                                                    <MenuItem value="1">1</MenuItem>
                                                     <MenuItem value="2">2</MenuItem>
                                                     <MenuItem value="3">3</MenuItem>
                                                     <MenuItem value="4">4</MenuItem>
@@ -338,6 +339,7 @@ const HomePage = () => {
                                                 </Select>
                                             </FormControl>
                                         </Grid>
+                                        <textarea id="message" rows="2" class="block p-2.5 mt-2 ml-4 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Nguyện vọng đăng ký"></textarea>
                                     </Grid>
                                 </DialogContent>
                                 <DialogActions>

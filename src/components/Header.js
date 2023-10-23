@@ -45,20 +45,23 @@ const Header = () => {
                             TRANG CHỦ
                         </button>
                     </Link>
-                    <a href="#" className="text-xl font-bold leading-6 text-white">
-                        TIN TỨC - SỰ KIỆN
-                    </a>
+                    <Link to="/tintuc-sukien">
+                        <button type='button' className="text-xl font-bold leading-6 text-white">
+                            TIN TỨC - SỰ KIỆN
+                        </button>
+                    </Link>
                     <Link to="/gioithieu">
                         <button type='button' className="text-xl font-bold leading-6 text-white">
                             GIỚI THIỆU
                         </button>
                     </Link>
-                    <a href="#" className="text-xl font-bold leading-6 text-white">
-                        NỘI QUY
-                    </a>
+                    <Link to="/noiquy">
+                        <button type='button' className="text-xl font-bold leading-6 text-white">
+                            NỘI QUY
+                        </button>
+                    </Link>
                 </div>
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-
                     <Dropdown />
                 </div>
             </nav>

@@ -10,7 +10,7 @@ export const auth = async (user, navigate) => {
                 navigate("/trangchu"); 
             }, 1000);
         }
-        else navigate("/admin");
+        else navigate("/admin/dashboard");
         localStorage.setItem("token", token);
         return res;
     } catch (error) {

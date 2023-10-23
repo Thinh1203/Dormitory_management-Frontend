@@ -9,7 +9,7 @@ const IntroducePage = () => {
             <Grid style={{ flex: 1 }}>
                 <Container maxWidth="lg">
                     <div className="p-2 rounded-md shadow-md bg-white">
-                        <h2 className="bg-blue-100 text-blue-600 font-semibold text-md px-4 py-2 underline">Một số thông tin chung về chỗ ở của sinh viên tại ký túc xá</h2>
+                        <h2 className="bg-blue-100 text-blue-600 font-semibold text-md px-4 py-2 underline uppercase">Một số thông tin chung về chỗ ở của sinh viên tại ký túc xá</h2>
                         <Grid container p={2}>
                             <Grid item xs={12} lg={6}>
                                 <Typography variant="subtitle1" align="justify" mx={1}>

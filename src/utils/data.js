@@ -2,15 +2,15 @@ export const majorList = [
     "Giáo dục Tiểu học",
     "Giáo dục Công dân",
     "Giáo dục Thể chất",
-    "Sư phạm Toán học", 
+    "Sư phạm Toán học",
     "Sư phạm Tin học",
     "Giáo dục Vật lý",
     "Giáo dục Hóa học",
-    "Sư phạm Sinh học", 
+    "Sư phạm Sinh học",
     "Sư phạm Ngữ văn",
     "Giáo dục Lịch sử",
     "Giáo dục Địa lý",
-    "Sư phạm Tiếng Anh", 
+    "Sư phạm Tiếng Anh",
     "Sư phạm Tiếng Pháp",
     "Công nghệ kỹ thuật hóa học",
     "Kỹ thuật vật liệu",
@@ -46,3 +46,5 @@ export const majorList = [
 ]
 
 export const courseList = ["44", "45", "46", "47", "48", "49", "50"];
+
+export const capacity = ["2", "3", "4", "5", "6", "7", "8"];

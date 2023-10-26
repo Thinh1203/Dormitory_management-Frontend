@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import jwt_decode from 'jwt-decode';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
@@ -8,8 +10,6 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import HomeIcon from '@mui/icons-material/Home';
-import DnsRoundedIcon from '@mui/icons-material/DnsRounded';
-import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import DomainAddIcon from '@mui/icons-material/DomainAdd';
 import PeopleIcon from '@mui/icons-material/People';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
@@ -17,13 +17,16 @@ import PhonelinkOffIcon from '@mui/icons-material/PhonelinkOff';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Link } from '@mui/material';
 import PriceCheckIcon from '@mui/icons-material/PriceCheck';
 import { item, itemCategory } from '../../utils/createTheme';
 import Collapse from '@mui/material/Collapse';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import BedroomChildIcon from '@mui/icons-material/BedroomChild';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import LockPersonIcon from '@mui/icons-material/LockPerson';
+import LogoutIcon from '@mui/icons-material/Logout';
+
 const Navigator = (props) => {
   const { ...other } = props;
   const [open, setOpen] = React.useState(false);
@@ -31,6 +34,14 @@ const Navigator = (props) => {
   const handleToggle = () => {
     setOpen(!open);
   };
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  }
+  const currentUserToken = localStorage.getItem("token");
+  const decodedToken = jwt_decode(currentUserToken);
+  const { mssv, user_id } = decodedToken;
 
   return (
     <Drawer variant="permanent" {...other}>
@@ -47,9 +58,9 @@ const Navigator = (props) => {
         </ListItem>
         <ListItem sx={{ ...item, ...itemCategory }}>
           <ListItemIcon>
-            <HomeIcon />
+            <AccountBoxIcon />
           </ListItemIcon>
-          <ListItemText>ADMIN DASHBOARD</ListItemText>
+          <ListItemText sx={{ color: "ButtonFace" }} >{mssv}</ListItemText>
         </ListItem>
         <Box sx={{ bgcolor: '#101F33' }}>
           <ListItem disablePadding>
@@ -62,13 +73,13 @@ const Navigator = (props) => {
           </ListItem>
         </Box>
         <Box sx={{ bgcolor: '#101F33' }}>
-          <ListItem disablePadding>
-            <ListItemButton sx={item} component={Link} to="/admin/dashboard">
-              <ListItemIcon>
-                <BedroomChildIcon />
-              </ListItemIcon>
-              <ListItemText>Quản lý phòng</ListItemText>
-            </ListItemButton>
+          <ListItem disablePadding >
+              <ListItemButton sx={item} component={Link} to="/admin/dashboard/room">
+                <ListItemIcon>
+                  <BedroomChildIcon />
+                </ListItemIcon>
+                <ListItemText>Quản lý phòng</ListItemText>
+              </ListItemButton>
           </ListItem>
         </Box>
         <Box sx={{ bgcolor: '#101F33' }}>
@@ -143,6 +154,27 @@ const Navigator = (props) => {
                 <NotificationsIcon />
               </ListItemIcon>
               <ListItemText>Quản lý thông báo</ListItemText>
+            </ListItemButton>
+          </ListItem>
+        </Box>
+        <Divider />
+        <Box sx={{ bgcolor: '#101F33' }}>
+          <ListItem disablePadding>
+            <ListItemButton sx={item} component={Link} to="/admin/dashboard">
+              <ListItemIcon>
+                <LockPersonIcon />
+              </ListItemIcon>
+              <ListItemText>Thông tin cá nhân</ListItemText>
+            </ListItemButton>
+          </ListItem>
+        </Box>
+        <Box sx={{ bgcolor: '#101F33' }}>
+          <ListItem disablePadding onClick={handleLogout}>
+            <ListItemButton sx={item} >
+              <ListItemIcon>
+                <LogoutIcon />
+              </ListItemIcon>
+              <ListItemText>Đăng xuất</ListItemText>
             </ListItemButton>
           </ListItem>
         </Box>

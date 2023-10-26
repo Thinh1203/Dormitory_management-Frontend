@@ -11,6 +11,7 @@ import IntroducePage from "../pages/IntroducePage";
 import RulePage from "../pages/RulePage";
 import EventPage from "../pages/EventPage";
 import MainDashboard from "../pages/adminDashboard/MainDashboard";
+import RoomManagerDashboard from "../pages/adminDashboard/RoomManagerDashboard";
 
 const routers = [
     { path: "/", component: LoginPage },
@@ -25,6 +26,7 @@ const routers = [
     { path: "/noiquy", component: RulePage },
     { path: "/tintuc-sukien", component: EventPage },
     { path: "/admin/dashboard", component: MainDashboard },
+    { path: "/admin/dashboard/room", component: RoomManagerDashboard },
     { path: "/*", component: ErrorPage }
 ];
 export default routers;

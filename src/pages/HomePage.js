@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { Typography, Button, Tooltip, Grid, Paper, TableRow, TableHead, TableContainer, TableCell, TableBody, Table, Pagination, Stack, TextField } from "@mui/material";
+import { Typography, Button, Tooltip, Grid, Paper, TableRow, TableHead, TableContainer, TableCell, TableBody, Table, Pagination, Stack, TextField, Input, OutlinedInput } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Dialog from '@mui/material/Dialog';
@@ -16,26 +16,11 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { Link } from 'react-router-dom';
+import { getRoomList } from '../api/room.api';
+import { capacity } from '../utils/data';
+import { checkForm, checkStudentRoom } from '../api/registrationForm.api';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
-
-function createData(maPhong, maToaNha, loaiPhong, phongNam, trangThai, sucChua, soChoOThucTe, daO, conTrong, gia, phongNauAn) {
-    return { maPhong, maToaNha, loaiPhong, phongNam, trangThai, sucChua, soChoOThucTe, daO, conTrong, gia, phongNauAn };
-}
-
-const rows = [
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-
-
-];
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -63,11 +48,20 @@ const toaNha = [
 const HomePage = () => {
     const [open, setOpen] = React.useState(false);
     const [openRegister, setOpenRegister] = React.useState(false);
-    const [toaNha1, setToaNha1] = React.useState("");
     const [gioiTinh, setGioiTinh] = React.useState("Nam");
     const [thoiGian, setThoiGian] = React.useState(1);
-    const [sucChua, setSucChua] = React.useState(0);
-    const [nauAn, setNauAn] = React.useState(false);
+    const [refresh, setRefresh] = React.useState(0);
+    const [data, setData] = React.useState([]);
+    const [currentPage, setCurrentPage] = React.useState(1);
+    const [search, setSearch] = React.useState("");
+    const [checkRegisterForm, setCheckRegisterForm] = React.useState(false);
+    const [checkStudentInRoom, setCheckStudentInRoom] = React.useState(false);
+    const [filter, setFilter] = React.useState({
+        capacity: "",
+        roomMale: "",
+        kitchen: "",
+        empty: ""
+    });
 
     const handleClose = () => {
         setOpen(false);
@@ -76,31 +70,88 @@ const HomePage = () => {
     const closeRigester = () => {
         setOpenRegister(false);
     }
+    const fetchApi = async () => {
+        const res = await getRoomList(currentPage, search, filter);
+        setData(res.data);
+    };
 
+    useEffect(() => {
+        fetchApi();
+    }, [currentPage, search, refresh]);
+
+    const handleChangePage = (event, newPage) => {
+        setCurrentPage(newPage);
+    };
+
+    useEffect(() => {
+        const checkFormUser = async () => {
+            const res = await checkForm();
+            if (res.status === 200 && res.data.registrationStatus < 1) {
+                setCheckRegisterForm(true);
+            }
+        };
+        checkFormUser();
+    }, []);
+
+    useEffect(() => {
+        const checkStudentInRoom = async () => {
+            const res = await checkStudentRoom();
+            if (res.status === 200) {
+                setCheckStudentInRoom(true);
+            }
+        };
+        checkStudentInRoom();
+    }, []);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Header />
             <Grid style={{ flex: 1 }}>
                 <Grid container>
-                    <Grid item xs={4}>
-                        <Typography variant="h6" align='left' className='pl-4 text-blue-700 font-bold underline'>
+                    <Grid item xs={3}>
+                        <div className='pl-4 text-blue-700 font-bold underline mt-1 text-xs md:text-lg lg:text-xl'>
                             Xem tình trạng phòng
-                        </Typography>
+                        </div>
                     </Grid>
-                    <Grid item xs={4}>
-                        <Link to="/dondangky">
-                            <Typography variant="h6" align='left' className='pl-4 text-blue-700 font-bold underline hover:text-red-500 cursor-pointer'>
-                                Xem đơn đăng ký
-                            </Typography>
-                        </Link>
+                    <Grid item xs={3}>
+                        {
+                            (checkRegisterForm && !checkRegisterForm) ? (
+                                <Link to="/dondangky">
+                                    <div className='px-2 text-blue-700 font-bold underline hover:text-red-500 cursor-pointer text-xs md:text-lg lg:text-xl mt-1'>
+                                        Xem đơn đăng ký
+                                    </div>
+                                </Link>
+                            ) : " "
+                        }
                     </Grid>
-
-                    <Grid item xs={4}>
+                    <Grid item xs={3}>
+                        <OutlinedInput
+                            onChange={(e) => setSearch(e.target.value)}
+                            fullWidth
+                            placeholder="A100, B101..."
+                            sx={{ maxHeight: 40, marginY: "3px" }}
+                        />
+                    </Grid>
+                    <Grid item xs={3}>
                         <Typography align='right' className='px-4'>
                             <Tooltip title="Filter list" >
                                 <IconButton onClick={() => setOpen(true)}>
                                     <FilterListIcon className='text-blue-700' />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Refresh" >
+                                <IconButton onClick={() => {
+                                    setFilter({
+                                        capacity: "",
+                                        roomMale: "",
+                                        kitchen: "",
+                                        empty: ""
+                                    });
+                                    setCurrentPage(1);
+                                    setRefresh(0);
+                                    fetchApi();
+                                }}>
+                                    <RefreshIcon className='text-blue-700' />
                                 </IconButton>
                             </Tooltip>
                             <BootstrapDialog
@@ -126,15 +177,15 @@ const HomePage = () => {
                                 <DialogContent dividers>
                                     <Box sx={{ minWidth: 200, paddingBottom: "8px" }}>
                                         <FormControl fullWidth>
-                                            <InputLabel id="demo-simple-select-label">Tòa nhà</InputLabel>
+                                            <InputLabel id="demo-simple-select-label">Sức chứa</InputLabel>
                                             <Select
                                                 labelId="demo-simple-select-label"
                                                 id="demo-simple-select"
-                                                value={toaNha1}
-                                                label="Tòa nhà"
-                                                onChange={(e) => setToaNha1(e.target.value)}
+
+                                                label="Sức chứa"
+                                                onChange={(e) => setFilter({ ...filter, capacity: e.target.value })}
                                             >
-                                                {toaNha?.map((e, index) => (
+                                                {capacity?.map((e, index) => (
                                                     <MenuItem value={e} key={index}>{e}</MenuItem>
                                                 ))}
 
@@ -147,9 +198,9 @@ const HomePage = () => {
                                             <Select
                                                 labelId="demo-simple-select-label"
                                                 id="demo-simple-select"
-                                                value={gioiTinh}
+
                                                 label="Phòng Nam/Nữ"
-                                                onChange={(e) => setGioiTinh(e.target.value)}
+                                                onChange={(e) => setFilter({ ...filter, roomMale: e.target.value })}
                                                 MenuProps={MenuProps}
                                             >
                                                 <MenuItem value="Nam">Nam</MenuItem>
@@ -160,20 +211,15 @@ const HomePage = () => {
                                     </Box>
                                     <Box sx={{ minWidth: 200, paddingBottom: "8px" }}>
                                         <FormControl fullWidth>
-                                            <InputLabel id="demo-simple-select-label">Sức chứa</InputLabel>
+                                            <InputLabel id="demo-simple-select-label">Phòng còn chỗ</InputLabel>
                                             <Select
                                                 labelId="demo-simple-select-label"
                                                 id="demo-simple-select"
-                                                value={sucChua}
-                                                label="Sức chứa"
-                                                onChange={(e) => setSucChua(e.target.value)}
+
+                                                label="Phòng còn chỗ"
+                                                onChange={(e) => setFilter({ ...filter, empty: e.target.value })}
                                             >
-                                                <MenuItem value={2}>2</MenuItem>
-                                                <MenuItem value={3}>3</MenuItem>
-                                                <MenuItem value={4}>4</MenuItem>
-                                                <MenuItem value={5}>5</MenuItem>
-                                                <MenuItem value={6}>6</MenuItem>
-                                                <MenuItem value={8}>8</MenuItem>
+                                                <MenuItem value={1}>Còn</MenuItem>
                                             </Select>
                                         </FormControl>
                                     </Box>
@@ -183,22 +229,19 @@ const HomePage = () => {
                                             <Select
                                                 labelId="demo-simple-select-label"
                                                 id="demo-simple-select"
-                                                value={"nauAn"}
+
                                                 label="Phòng nấu ăn"
-                                                onChange={(e) => {
-                                                    console.log(nauAn);
-                                                    setNauAn(e.target.value)
-                                                }}
+                                                onChange={(e) => setFilter({ ...filter, kitchen: e.target.value })}
                                             >
-                                                <MenuItem value={true}>Có thể</MenuItem>
-                                                <MenuItem value={false}>Không thể</MenuItem>
+                                                <MenuItem value={true}>Có</MenuItem>
+                                                <MenuItem value={false}>Không</MenuItem>
 
                                             </Select>
                                         </FormControl>
                                     </Box>
                                 </DialogContent>
                                 <DialogActions>
-                                    <Button autoFocus onClick={handleClose}>
+                                    <Button autoFocus onClick={() => { handleClose(); setRefresh(1); fetchApi(); }}>
                                         Lọc
                                     </Button>
                                 </DialogActions>
@@ -226,28 +269,28 @@ const HomePage = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {rows.map((row, index) => (
+                            {data && data?.data?.map((e, index) => (
                                 <TableRow
                                     className={index % 2 == 0 ? 'bg-gray-100' : ''}
                                     style={{ padding: "4px" }}
-                                    key={index}
+                                    key={e.id}
                                 >
                                     <TableCell align="center" component="th" scope="row" style={{ padding: "4px" }}>
                                         {index + 1}
                                     </TableCell>
-                                    <TableCell align="center" style={{ padding: "2px" }}>{row.maPhong}</TableCell>
-                                    <TableCell align="center" style={{ padding: "2px" }}>{row.maToaNha}</TableCell>
-                                    <TableCell align="center" style={{ padding: "2px" }}>{row.loaiPhong}</TableCell>
-                                    <TableCell align="center" style={{ padding: "2px" }}>{row.phongNam}</TableCell>
-                                    <TableCell align="center" style={{ padding: "2px" }}>{row.trangThai}</TableCell>
-                                    <TableCell align="center" style={{ padding: "2px" }}>{row.sucChua}</TableCell>
-                                    <TableCell align="center" style={{ padding: "2px" }}>{row.soChoOThucTe}</TableCell>
-                                    <TableCell align="center" style={{ padding: "2px" }}>{row.daO}</TableCell>
-                                    <TableCell align="center" style={{ padding: "2px" }}>{row.conTrong}</TableCell>
-                                    <TableCell align="center" style={{ padding: "2px" }}>{row.phongNauAn}</TableCell>
-                                    <TableCell align="center" style={{ padding: "2px" }}>{row.gia}</TableCell>
+                                    <TableCell align="center" style={{ padding: "2px" }}>{e?.roomCode}</TableCell>
+                                    <TableCell align="center" style={{ padding: "2px" }}>{e?.building.areaCode}</TableCell>
+                                    <TableCell align="center" style={{ padding: "2px" }}>{e?.roomType}</TableCell>
+                                    <TableCell align="center" style={{ padding: "2px" }}>{e?.roomMale}</TableCell>
+                                    <TableCell align="center" style={{ padding: "2px" }}>{(e?.status) ? "Đang sử dụng" : "Đang bảo trì"}</TableCell>
+                                    <TableCell align="center" style={{ padding: "2px" }}>{e?.capacity}</TableCell>
+                                    <TableCell align="center" style={{ padding: "2px" }}>{e?.actualCapacity}</TableCell>
+                                    <TableCell align="center" style={{ padding: "2px" }}>{e?.wereThere}</TableCell>
+                                    <TableCell align="center" style={{ padding: "2px" }}>{e?.empty}</TableCell>
+                                    <TableCell align="center" style={{ padding: "2px" }}>{(e?.kitchen) ? "Có thể" : "Không thể"}</TableCell>
+                                    <TableCell align="center" style={{ padding: "2px" }}>{e?.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}đ</TableCell>
                                     <TableCell align="center" style={{ padding: "2px" }} >
-                                        <Button variant="outlined" size='small' onClick={() => setOpenRegister(true)}>Đăng ký</Button>
+                                        <Button variant="outlined" size='small' disabled={!e?.status || checkRegisterForm} onClick={() => setOpenRegister(true)}>Đăng ký</Button>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -355,7 +398,13 @@ const HomePage = () => {
                     </Table>
                 </TableContainer>
                 <Stack spacing={2} padding={2} className='flex justify-center items-center'>
-                    <Pagination count={10} color="primary" />
+                    <Pagination
+                        count={Math.ceil(data?.total / data?.data_per_page)}
+                        page={currentPage}
+                        // rowsPerPage={data?.data_per_page}
+                        color="primary"
+                        onChange={handleChangePage}
+                    />
                 </Stack>
             </Grid>
             <Footer />

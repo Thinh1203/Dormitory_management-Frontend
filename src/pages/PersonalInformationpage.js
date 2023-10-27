@@ -3,8 +3,21 @@ import Footer from "../components/Footer";
 import Header from "../components/Header";
 import EditIcon from '@mui/icons-material/Edit';
 import * as React from 'react';
+import { getInformation } from "../api/student.api";
+
 
 const PersonalInformation = () => {
+    const [information, setInformation] = React.useState({});
+
+    React.useEffect(() => {
+        const fetchApi = async () => {
+            const res = await getInformation();
+            setInformation(res.data);
+         
+        };
+        fetchApi();
+    }, []);
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} className="bg-gray-200">
             <Header />
@@ -23,7 +36,7 @@ const PersonalInformation = () => {
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
                                     <th scope="row" rowSpan={8} className="px-6 py-4 font-medium whitespace-nowrap bg-gray-100 dark:bg-gray-800">
                                         <div>
-                                            <img src="https://mic.gov.vn/Upload_Moi/2022_vn02/20220827-ta50_1.jpeg" alt="Avatar" className="max-w-xs" />
+                                            <img src={information?.avatar} alt="Avatar" className="max-w-xs" />
                                         </div>
                                         <Button startIcon={<EditIcon />} variant="contained" color="success" size="small" sx={{ marginY: 2 }}>Cập nhật thông tin</Button>
                                     </th>
@@ -34,13 +47,13 @@ const PersonalInformation = () => {
                                         Họ và tên
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        Quách Huy Thịnh
+                                        {information?.fullName}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs">
                                         Giới tính
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        Nam
+                                        {information?.gender}
                                     </td>
                                 </tr>
 
@@ -49,13 +62,13 @@ const PersonalInformation = () => {
                                         Mã số sinh viên
                                     </td>
                                     <td className="px-6 py- sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        B1910454
+                                        {information?.mssv}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs">
                                         Ngày sinh
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        03/12/2001
+                                        {new Date(information?.birthday).toLocaleDateString('en-GB')}
                                     </td>
                                 </tr>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -63,13 +76,13 @@ const PersonalInformation = () => {
                                         Địa chỉ email
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        thinhb1910454@student.ctu.edu.vn
+                                        {information.email}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs">
                                         Địa chỉ
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        Đường 3/2 Q.Ninh Kiều TP.Cần Thơ
+                                        {information.address}
                                     </td>
                                 </tr>
                                 <tr className="border-b border-gray700-200 dark:border-gray-">
@@ -77,13 +90,13 @@ const PersonalInformation = () => {
                                         Mã căn cước công dân
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        41203456192
+                                        {information.identificationNumber}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs">
                                         Số điện thoại
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        0345139122
+                                        {information?.numberPhone}
                                     </td>
                                 </tr>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -91,13 +104,13 @@ const PersonalInformation = () => {
                                         Ngành học
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        Công nghệ thông tin
+                                        {information?.major}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs">
                                         Mã lớp
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        DI19V7A8
+                                        {information.classs}
                                     </td>
                                 </tr>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -105,13 +118,13 @@ const PersonalInformation = () => {
                                         Họ và tên người thân
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        Quách Văn Nguyên
+                                        {information.relativeName}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs">
                                         Khóa
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        45
+                                        {information.course}
                                     </td>
                                 </tr>
                                 <tr>
@@ -119,13 +132,13 @@ const PersonalInformation = () => {
                                         Số điện thoại người thân
                                     </td>
                                     <td className="px-6 py-2 bg-gray-50 dark:bg-gray-800 sm:text-sm text-xs">
-                                        0776867325
+                                    {information.relativeNumberPhone}
                                     </td>
                                     <td className="px-6 py-2">
                                         Mối quan hệ
                                     </td>
                                     <td className="px-6 py-2 bg-gray-50 dark:bg-gray-800">
-                                        Bố
+                                    {information.relationship}
                                     </td>
                                 </tr>
                             </tbody>

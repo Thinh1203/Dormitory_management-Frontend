@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { Typography, Button, Tooltip, Grid, Paper, TableRow, TableHead, TableContainer, TableCell, TableBody, Table, Pagination, Stack, TextField, Input, OutlinedInput } from "@mui/material";
+import { Typography, Button, Tooltip, Grid, Paper, TableRow, TableHead, TableContainer, TableCell, TableBody, Table, Pagination, Stack, OutlinedInput } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Dialog from '@mui/material/Dialog';
@@ -15,11 +16,12 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import { Link } from 'react-router-dom';
-import { getRoomList } from '../api/room.api';
-import { capacity } from '../utils/data';
-import { checkForm, checkStudentRoom } from '../api/registrationForm.api';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import { getRoomList, getRoomInformation, getAllSchoolYear, registerRoom } from '../api/room.api';
+import { checkForm, checkStudentRoom } from '../api/registrationForm.api';
+import { capacity } from '../utils/data';
+import { toast } from 'react-toastify';
+
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -41,54 +43,71 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     },
 }));
 
-const toaNha = [
-    "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"
-]
 
 const HomePage = () => {
     const [open, setOpen] = React.useState(false);
     const [openRegister, setOpenRegister] = React.useState(false);
-    const [gioiTinh, setGioiTinh] = React.useState("Nam");
-    const [thoiGian, setThoiGian] = React.useState(1);
     const [refresh, setRefresh] = React.useState(0);
     const [data, setData] = React.useState([]);
     const [currentPage, setCurrentPage] = React.useState(1);
     const [search, setSearch] = React.useState("");
     const [checkRegisterForm, setCheckRegisterForm] = React.useState(false);
     const [checkStudentInRoom, setCheckStudentInRoom] = React.useState(false);
-    const [filter, setFilter] = React.useState({
-        capacity: "",
-        roomMale: "",
-        kitchen: "",
-        empty: ""
-    });
+    const [id, setId] = React.useState(0);
+    const [roomRegister, setRoomRegister] = React.useState({});
+    const [schoolYear, setShoolYear] = React.useState({});
+    const [filter, setFilter] = React.useState({ capacity: "", roomMale: "", kitchen: "", empty: "" });
+    const [formRegister, setFormRegister] = React.useState({ roomId: 0, schoolYearId: 0, registrationTime: 0, wish: "" });
 
     const handleClose = () => {
         setOpen(false);
     };
 
     const closeRigester = () => {
+        setId(0);
+        setFormRegister({ roomId: 0, schoolYearId: 0, registrationTime: 0, wish: "" });
         setOpenRegister(false);
     }
+
     const fetchApi = async () => {
         const res = await getRoomList(currentPage, search, filter);
         setData(res.data);
     };
 
-    useEffect(() => {
-        fetchApi();
-    }, [currentPage, search, refresh]);
-
     const handleChangePage = (event, newPage) => {
         setCurrentPage(newPage);
     };
 
+    const roomInformation = async () => {
+        const res = await getRoomInformation(id);
+        setRoomRegister(res.data);
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const res = await registerRoom(formRegister);
+        if (res.status === 200) {
+            setOpenRegister(false);
+            setRefresh(refresh => refresh + 1);
+            toast.success("Đăng ký thành công!", { position: "bottom-right", autoClose: 1000 });
+        }
+    }
+
+    useEffect(() => {
+        roomInformation();
+    }, [id]);
+
+    useEffect(() => {
+        fetchApi();
+    }, [currentPage, search, refresh]);
+
     useEffect(() => {
         const checkFormUser = async () => {
             const res = await checkForm();
-            if (res.status === 200 && res.data.registrationStatus < 1) {
+            if (res.status === 200 && res.data.registrationForm.registrationStatus < 1) {
                 setCheckRegisterForm(true);
             }
+
         };
         checkFormUser();
     }, []);
@@ -103,6 +122,14 @@ const HomePage = () => {
         checkStudentInRoom();
     }, []);
 
+    useEffect(() => {
+        const getSchoolYear = async () => {
+            const res = await getAllSchoolYear();
+            setShoolYear(res.data);
+        }
+        getSchoolYear();
+    }, []);
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Header />
@@ -115,7 +142,7 @@ const HomePage = () => {
                     </Grid>
                     <Grid item xs={3}>
                         {
-                            (checkRegisterForm && !checkRegisterForm) ? (
+                            (checkRegisterForm) ? (
                                 <Link to="/dondangky">
                                     <div className='px-2 text-blue-700 font-bold underline hover:text-red-500 cursor-pointer text-xs md:text-lg lg:text-xl mt-1'>
                                         Xem đơn đăng ký
@@ -241,7 +268,7 @@ const HomePage = () => {
                                     </Box>
                                 </DialogContent>
                                 <DialogActions>
-                                    <Button autoFocus onClick={() => { handleClose(); setRefresh(1); fetchApi(); }}>
+                                    <Button autoFocus onClick={() => { handleClose(); setRefresh(refresh => refresh + 1); }}>
                                         Lọc
                                     </Button>
                                 </DialogActions>
@@ -269,7 +296,7 @@ const HomePage = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {data && data?.data?.map((e, index) => (
+                            {data ? data?.data?.map((e, index) => (
                                 <TableRow
                                     className={index % 2 == 0 ? 'bg-gray-100' : ''}
                                     style={{ padding: "4px" }}
@@ -288,12 +315,25 @@ const HomePage = () => {
                                     <TableCell align="center" style={{ padding: "2px" }}>{e?.wereThere}</TableCell>
                                     <TableCell align="center" style={{ padding: "2px" }}>{e?.empty}</TableCell>
                                     <TableCell align="center" style={{ padding: "2px" }}>{(e?.kitchen) ? "Có thể" : "Không thể"}</TableCell>
-                                    <TableCell align="center" style={{ padding: "2px" }}>{e?.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}đ</TableCell>
+                                    <TableCell align="center" style={{ padding: "2px" }}>{e?.price && e?.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}đ</TableCell>
                                     <TableCell align="center" style={{ padding: "2px" }} >
-                                        <Button variant="outlined" size='small' disabled={!e?.status || checkRegisterForm} onClick={() => setOpenRegister(true)}>Đăng ký</Button>
+                                        <Button
+                                            variant="outlined"
+                                            size='small'
+                                            disabled={!e?.status || (e?.empty < 1) || checkRegisterForm || checkStudentInRoom}
+                                            onClick={() => { setId(e?.id); setOpenRegister(true); roomInformation(); setFormRegister({ ...formRegister, roomId: e?.id }); }}
+                                        >
+                                            Đăng ký
+                                        </Button>
                                     </TableCell>
                                 </TableRow>
-                            ))}
+                            )) : (
+                                <TableRow>
+                                    <TableCell colSpan={12} align="center" component="th" scope="row" style={{ padding: "4px" }}>
+                                        Không có dữ liệu
+                                    </TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                         <Dialog open={openRegister} onClose={handleClose} fullWidth={true}>
                             <form>
@@ -329,36 +369,35 @@ const HomePage = () => {
                                         </Grid>
                                         <Grid item xs={6}>
                                             <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
-                                                B1
+                                                {roomRegister?.building?.areaCode}
                                             </Paper>
                                             <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
-                                                B106
+                                                {roomRegister?.roomCode}
                                             </Paper>
                                             <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
-                                                Phòng 8 người ở
+                                                {roomRegister?.roomType}
                                             </Paper>
                                             <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
-                                                2
+                                                {roomRegister?.empty}
                                             </Paper>
                                             <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
-                                                Không
+                                                {roomRegister?.status ? "Có thể" : "Không"}
                                             </Paper>
                                             <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
-                                                170.000đ
+                                                {roomRegister?.price && roomRegister?.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}đ
                                             </Paper>
                                             <FormControl sx={{ maxHeight: 250, marginBottom: "2px" }} fullWidth size='small'>
                                                 <Select
-
-
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
-                                                    value={gioiTinh}
+                                                    // value={""}
                                                     // label="Phòng Nam/Nữ"
-                                                    onChange={(e) => setGioiTinh(e.target.value)}
+                                                    onChange={(e) => setFormRegister({ ...formRegister, schoolYearId: e.target.value })}
                                                     MenuProps={MenuProps}
                                                 >
-                                                    <MenuItem value="Nam">Nam</MenuItem>
-                                                    <MenuItem value="Nữ">Nữ</MenuItem>
+                                                    {(schoolYear !== undefined && schoolYear.length > 0) && schoolYear?.map((e) => (
+                                                        <MenuItem key={e?.id} value={e?.id}>Học kỳ {e?.semester} Năm {e?.year}</MenuItem>
+                                                    ))}
 
                                                 </Select>
                                             </FormControl>
@@ -366,9 +405,9 @@ const HomePage = () => {
                                                 <Select
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
-                                                    value={thoiGian}
+                                                    value={formRegister.registrationTime > 0 ? formRegister?.registrationTime : 1}
                                                     // label="Phòng Nam/Nữ"
-                                                    onChange={(e) => setThoiGian(e.target.value)}
+                                                    onChange={(e) => setFormRegister({ ...formRegister, registrationTime: e.target.value })}
                                                     MenuProps={MenuProps}
                                                 >
                                                     <MenuItem value="1">1</MenuItem>
@@ -382,14 +421,14 @@ const HomePage = () => {
                                                 </Select>
                                             </FormControl>
                                         </Grid>
-                                        <textarea id="message" rows="2" class="block p-2.5 mt-2 ml-4 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Nguyện vọng đăng ký"></textarea>
+                                        <textarea onChange={(e) => setFormRegister({ ...formRegister, wish: e.target.value })} id="message" rows="2" class="block p-2.5 mt-2 ml-4 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Nguyện vọng đăng ký"></textarea>
                                     </Grid>
                                 </DialogContent>
                                 <DialogActions>
                                     <Button type='button' variant='outlined' color='inherit' onClick={closeRigester}>
                                         Đóng lại
                                     </Button>
-                                    <Button type='submit' variant='outlined' color='success' onClick={closeRigester}>
+                                    <Button type='submit' variant='outlined' color='success' onClick={(e) => handleSubmit(e)}>
                                         Đăng ký
                                     </Button>
                                 </DialogActions>
@@ -397,7 +436,7 @@ const HomePage = () => {
                         </Dialog>
                     </Table>
                 </TableContainer>
-                <Stack spacing={2} padding={2} className='flex justify-center items-center'>
+                {data && (<Stack spacing={2} padding={2} className='flex justify-center items-center'>
                     <Pagination
                         count={Math.ceil(data?.total / data?.data_per_page)}
                         page={currentPage}
@@ -405,7 +444,7 @@ const HomePage = () => {
                         color="primary"
                         onChange={handleChangePage}
                     />
-                </Stack>
+                </Stack>)}
             </Grid>
             <Footer />
         </div>

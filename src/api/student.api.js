@@ -18,13 +18,28 @@ export const register = async (data, avatar) => {
         formData.append('relativeName', data.relativeName);
         formData.append('relationship', data.relationship);
         formData.append('relativeNumberPhone', data.relativeNumberPhone);
-  
+
         const res = await instance.post("/user/student/add", formData, {
             headers: {
-              'Content-Type': 'multipart/form-data',
-            } });
+                'Content-Type': 'multipart/form-data',
+            }
+        });
         return res;
     } catch (error) {
         return error;
     }
+}
+
+export const getInformation = async () => {
+    try {
+        const token = localStorage.getItem("token");
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+        const result = await instance.get('/user/student/getInformation', { headers });
+        return result;
+    } catch (error) {
+        return error;
+    }
+
 }

@@ -1,10 +1,20 @@
 import { Container, Grid, Button } from "@mui/material";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { getInformationStudentInRoom } from "../api/room.api";
 
 const RoomInformationPage = () => {
+    const [data, setData] = React.useState({});
+
+    useEffect(() => {
+        const fetchApi = async () => {
+            const res = await getInformationStudentInRoom();
+            setData(res.data);
+        };
+        fetchApi();
+    }, []);
 
     const list = [
         {
@@ -85,13 +95,13 @@ const RoomInformationPage = () => {
                                         Loại phòng đăng ký
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {room.type}
+                                        {data !== undefined ? data?.room?.room?.roomType : " "}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs  font-semibold">
                                         Mã tòa nhà
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {room.building}
+                                        {data !== undefined ? data?.room?.room?.building?.areaCode : " "}
                                     </td>
                                 </tr>
 
@@ -100,13 +110,13 @@ const RoomInformationPage = () => {
                                         Phòng
                                     </td>
                                     <td className="px-6 py- sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {room.room}
+                                        {data !== undefined ? data?.room?.room?.roomCode : " "}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs  font-semibold">
                                         Giá phòng
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {room.price} / tháng
+                                        {data !== undefined ? (data?.room?.room?.price?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ/tháng") : " "}
                                     </td>
                                 </tr>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -114,13 +124,13 @@ const RoomInformationPage = () => {
                                         Ngày đăng ký
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {room.registerDay}
+                                        {data !== undefined ? (new Date(data?.registrationForm?.createdAt).toLocaleDateString('en-GB')) : " "}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs  font-semibold">
                                         Số tháng đăng ký
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {room.month}
+                                        {data !== undefined ? data?.registrationForm?.registrationTime : " "}
                                     </td>
                                 </tr>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -128,27 +138,26 @@ const RoomInformationPage = () => {
                                         Ngày được duyệt
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        2/1/2023
+                                        {data !== undefined ? (new Date(data?.room?.createdAt).toLocaleDateString('en-GB')) : " "}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs  font-semibold">
                                         Tổng phí phòng
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800 font-medium">
-                                        {room.Fee}
+                                        {data !== undefined ? (data?.room?.roomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")) : " "}
                                     </td>
                                 </tr>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
                                     <td className="px-6 py-2 sm:text-sm text-xs  font-semibold">
                                         Trạng thái thanh toán
                                     </td>
-                                    <td className={`px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800 font-medium ${room.status ? 'text-green-500' : 'text-red-500'}`}>
-                                        {room.status ? "Đã thanh toán" : "Chưa thanh toán"}
-                                    </td>
+                                    <td className={`px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800 font-medium ${(data !== undefined && data?.room?.paymentStatus) ? 'text-green-600' : 'text-red-500'}`}>
+                                        {data === undefined ? " " : (data?.room?.paymentStatus ? "Đã thanh toán" : "Chưa thanh toán")}                                    </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs font-semibold">
                                         Thanh toán
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        <Button variant="contained" disabled={room.status}>
+                                        <Button variant="contained" disabled={(data === undefined ? true : (data?.room?.paymentStatus))}>
                                             Thanh toán
                                         </Button>
                                     </td>

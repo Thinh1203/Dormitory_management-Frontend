@@ -1,20 +1,14 @@
 import * as React from 'react';
-import { Box, Container, Paper, Grid, Typography, Button } from "@mui/material";
+import { Container } from "@mui/material";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import Slide from '@mui/material/Slide';
 import { toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { auth } from "../api/auth.api";
+import { useNavigate } from "react-router-dom";
+import { changePassword } from "../api/auth.api";
 
 const ChangePasswordPage = () => {
 
@@ -23,10 +17,19 @@ const ChangePasswordPage = () => {
     const navigate = useNavigate();
 
     const onSubmit = (data) => {
+        if (data.newPassword !== data.confirmNewPassword) {
+            return toast.error("Mật khẩu mới không trùng khớp!", { position: "bottom-right", autoClose: 1000 });
+        }
         const fetchApi = async () => {
-            const res = await auth(data, navigate);
-            if (res.status != 200)
-                return toast.error("Tài khoản hoặc mật khẩu không chính xác!", { position: "bottom-right", autoClose: 1000 });
+            const res = await changePassword(data);
+            if (res?.status !== 200) {
+                return toast.error("Mật khẩu cũ không khớp!", { position: "bottom-right", autoClose: 1000 });
+            } else {
+                toast.success("Đổi mật khẩu thành công!", { position: "bottom-right", autoClose: 1000 });
+                setTimeout(() => {
+                    navigate("/");
+                }, 2000)
+            }
         };
         fetchApi();
     }
@@ -47,7 +50,7 @@ const ChangePasswordPage = () => {
                             <input
                                 type="password"
                                 className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
-                                {...register("userName", { required: "Vui lòng nhập mật khẩu cũ." })}
+                                {...register("oldPassword", { required: "Vui lòng nhập mật khẩu cũ." })}
 
                             />
                             <p className="text-red-600">{errors.userName?.message}</p>
@@ -59,7 +62,7 @@ const ChangePasswordPage = () => {
                                 type="password"
                                 // type={showPassword ? "text" : "password"}
                                 className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
-                                {...register("password", { required: "Vui lòng nhập mật khẩu mới." })}
+                                {...register("newPassword", { required: "Vui lòng nhập mật khẩu mới." })}
 
                             />
                             <p className="text-red-600">{errors.password?.message}</p>
@@ -72,7 +75,7 @@ const ChangePasswordPage = () => {
                                 type="password"
 
                                 className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
-                                {...register("userName", { required: "Vui lòng nhập mật khẩu mới." })}
+                                {...register("confirmNewPassword", { required: "Vui lòng nhập mật khẩu mới." })}
 
                             />
                             <p className="text-red-600">{errors.userName?.message}</p>

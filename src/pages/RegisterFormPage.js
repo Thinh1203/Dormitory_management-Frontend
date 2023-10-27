@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Container, Paper, Grid, Typography, Button } from "@mui/material";
+import { Container, Paper, Grid, Typography, Button } from "@mui/material";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import Dialog from '@mui/material/Dialog';
@@ -7,23 +7,54 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
 import { toast } from 'react-toastify';
 import { Transition } from '../utils/createTheme';
+import { checkForm, deleteRegistrationForm } from '../api/registrationForm.api';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterFormPage = () => {
-
     const [open, setOpen] = React.useState(false);
+    const [id, setId] = React.useState(0);
+    const [information, setInformation] = React.useState({});
+
+    const navigator = useNavigate();
+    React.useEffect(() => {
+        const fetchApi = async () => {
+            const res = await checkForm();
+            setInformation(res.data);
+        };
+        fetchApi();
+    }, []);
+
+    const deleteForm = async () => {
+        const res = await deleteRegistrationForm(id);
+        setOpen(false);
+        if (res.status === 200) {
+
+            toast.success("Đã hủy đơn", {
+                position: "bottom-right",
+                autoClose: 1000,
+            });
+            return setTimeout(() => {
+                navigator("/trangchu");
+            }, 1500)
+
+        } else {
+            return toast.error("Có lỗi xảy ra", {
+                position: "bottom-right",
+                autoClose: 1000,
+            }) 
+        }
+    }
+
 
     const handleClickOpen = () => {
+        setId(information?.registrationForm?.id)
         setOpen(true);
     };
 
     const handleClose = () => {
+        setId(0);
         setOpen(false);
-        toast.success("Đã hủy đơn", {
-            position: "bottom-right",
-            autoClose: 1000,
-        })
     };
-
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} className='bg-gray-200'>
@@ -50,7 +81,7 @@ const RegisterFormPage = () => {
                             </DialogContentText>
                         </DialogContent> */}
                         <DialogActions>
-                            <Button onClick={handleClose}>Đồng ý</Button>
+                            <Button onClick={deleteForm}>Đồng ý</Button>
                             <Button onClick={handleClose}>Từ chối</Button>
                         </DialogActions>
                     </Dialog>
@@ -90,34 +121,36 @@ const RegisterFormPage = () => {
                     </Grid>
                     <Grid item xs={6} sx={{ padding: 2 }}>
                         <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
-                            B1
+                            {information?.room?.building.areaCode}
                         </Paper>
                         <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
-                            B106
+                            {information?.room?.roomCode}
                         </Paper>
                         <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
-                            Phòng 8 người ở
+                            {information?.room?.roomType}
                         </Paper>
                         <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
-                            2
+                            {information?.room?.empty}
                         </Paper>
                         <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
-                            Không
+                            {information?.room?.kitchen ? "Có thể" : "Không"}
                         </Paper>
                         <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
-                            170.000
+                            {information?.room?.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}đ
                         </Paper>
                         <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
-                            2023-2024 - học kỳ 1
+                            Học kỳ {information?.schoolYear?.semester} - Năm {information?.schoolYear?.year}
                         </Paper>
                         <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center" }}>
-                            7 tháng
+                            {information?.registrationForm?.registrationTime} tháng
                         </Paper>
                         <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center", color: "red" }}>
-                            Chờ được duyệt
+                            {!information?.registrationForm?.registrationStatus && "Chờ duyệt"}
                         </Paper>
                         <Paper className='md:text-base text-sm' variant='outlined' style={{ padding: 5, marginBottom: 5, textAlign: "center", color: "green" }}>
-                            1.350.000đ
+                            {
+                                (information?.registrationForm?.registrationTime * information?.room?.price).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                            }đ
                         </Paper>
                     </Grid>
                 </Grid>

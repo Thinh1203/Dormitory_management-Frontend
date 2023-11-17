@@ -26,13 +26,20 @@ import BedroomChildIcon from '@mui/icons-material/BedroomChild';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
 import LogoutIcon from '@mui/icons-material/Logout';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 
 const Navigator = (props) => {
   const { ...other } = props;
   const [open, setOpen] = React.useState(false);
-
+  const [open2, setOpen2] = React.useState(false);
+  
   const handleToggle = () => {
     setOpen(!open);
+  };
+  const handleToggle2 = () => {
+    setOpen2(!open2);
   };
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -74,7 +81,7 @@ const Navigator = (props) => {
         </Box>
         <Box sx={{ bgcolor: '#101F33' }}>
           <ListItem disablePadding >
-              <ListItemButton sx={item} component={Link} to="/admin/dashboard/room">
+              <ListItemButton sx={item} component={Link} to="/admin/dashboard/danhsachphong">
                 <ListItemIcon>
                   <BedroomChildIcon />
                 </ListItemIcon>
@@ -84,7 +91,7 @@ const Navigator = (props) => {
         </Box>
         <Box sx={{ bgcolor: '#101F33' }}>
           <ListItem disablePadding>
-            <ListItemButton sx={item} component={Link} to="/admin/dashboard">
+            <ListItemButton sx={item} component={Link} to="/admin/dashboard/danhsachsinhvien">
               <ListItemIcon>
                 <PeopleIcon />
               </ListItemIcon>
@@ -103,6 +110,41 @@ const Navigator = (props) => {
           </ListItem>
         </Box>
         <Box sx={{ bgcolor: '#101F33' }}>
+          <ListItem disablePadding onClick={handleToggle2}>
+            <ListItemButton sx={item}>
+              <ListItemIcon>
+                <EditNoteIcon />
+              </ListItemIcon>
+              <ListItemText>Quản lý đơn</ListItemText>
+              <ListItemIcon>
+                {!open2 ? (<ArrowDropDownIcon />) : (<ArrowDropUpIcon />)}
+              </ListItemIcon>
+            </ListItemButton>
+          </ListItem>
+        </Box>
+        <Collapse in={open2} timeout="auto" unmountOnExit>
+          <Box sx={{ bgcolor: '#1D2C40' }}>
+            <ListItem disablePadding sx={{ marginLeft: 1 }}>
+              <ListItemButton sx={item} component={Link} to="/admin/dashboard">
+                <ListItemIcon>
+                  <ExitToAppIcon />
+                </ListItemIcon>
+                <ListItemText>Đơn đăng ký trả chỗ</ListItemText>
+              </ListItemButton>
+            </ListItem>
+          </Box>
+          <Box sx={{ bgcolor: '#1D2C40' }}>
+            <ListItem disablePadding sx={{ marginLeft: 1 }}>
+              <ListItemButton sx={item} component={Link} to="/admin/dashboard/danhsachdondangky">
+                <ListItemIcon>
+                  <LibraryBooksIcon />
+                </ListItemIcon>
+                <ListItemText>Đơn đăng ký ở</ListItemText>
+              </ListItemButton>
+            </ListItem>
+          </Box>
+        </Collapse>
+        <Box sx={{ bgcolor: '#101F33' }}>
           <ListItem disablePadding>
             <ListItemButton sx={item} component={Link} to="/admin/dashboard">
               <ListItemIcon>
@@ -112,6 +154,7 @@ const Navigator = (props) => {
             </ListItemButton>
           </ListItem>
         </Box>
+        
         <Box sx={{ bgcolor: '#101F33' }}>
           <ListItem disablePadding onClick={handleToggle}>
             <ListItemButton sx={item}>

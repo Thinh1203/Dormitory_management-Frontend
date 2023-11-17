@@ -61,6 +61,7 @@ const HomePage = () => {
 
     const handleClose = () => {
         setOpen(false);
+        setCurrentPage(1);
     };
 
     const closeRigester = () => {
@@ -89,6 +90,7 @@ const HomePage = () => {
         if (res.status === 200) {
             setOpenRegister(false);
             setRefresh(refresh => refresh + 1);
+            setCheckRegisterForm(true);
             toast.success("Đăng ký thành công!", { position: "bottom-right", autoClose: 1000 });
         }
     }
@@ -99,7 +101,7 @@ const HomePage = () => {
 
     useEffect(() => {
         fetchApi();
-    }, [currentPage, search, refresh]);
+    }, [currentPage, search, refresh, checkRegisterForm]);
 
     useEffect(() => {
         const checkFormUser = async () => {
@@ -161,12 +163,12 @@ const HomePage = () => {
                     </Grid>
                     <Grid item xs={3}>
                         <Typography align='right' className='px-4'>
-                            <Tooltip title="Filter list" >
-                                <IconButton onClick={() => setOpen(true)}>
+                            <Tooltip title="Bộ lọc" >
+                                <IconButton onClick={() => { setOpen(true); setCurrentPage(0); }}>
                                     <FilterListIcon className='text-blue-700' />
                                 </IconButton>
                             </Tooltip>
-                            <Tooltip title="Refresh" >
+                            <Tooltip title="Hủy lọc" >
                                 <IconButton onClick={() => {
                                     setFilter({
                                         capacity: "",
@@ -329,7 +331,7 @@ const HomePage = () => {
                                 </TableRow>
                             )) : (
                                 <TableRow>
-                                    <TableCell colSpan={12} align="center" component="th" scope="row" style={{ padding: "4px" }}>
+                                    <TableCell colSpan={12} align="center" component="th" scope="row" style={{ padding: "4px", fontSize: "24px", color: "red" }}>
                                         Không có dữ liệu
                                     </TableCell>
                                 </TableRow>
@@ -390,8 +392,8 @@ const HomePage = () => {
                                                 <Select
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
-                                                    // value={""}
-                                                    // label="Phòng Nam/Nữ"
+                                                    // value={formRegister?.schoolYearId > 0 ? formRegister?.schoolYearId : "Năm học - học kỳ"}
+                                                    // label="Năm học - học kỳ"
                                                     onChange={(e) => setFormRegister({ ...formRegister, schoolYearId: e.target.value })}
                                                     MenuProps={MenuProps}
                                                 >

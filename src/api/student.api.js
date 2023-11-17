@@ -43,3 +43,50 @@ export const getInformation = async () => {
     }
 
 }
+
+export const getOne = async (id) => {
+    try {
+        const token = localStorage.getItem("token");
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+        const result = await instance.get(`/user/student/getOne/${id}`, { headers });
+        return result;
+    } catch (error) {
+        return error;
+    }
+
+}
+
+export const getAll = async (page, search) => {
+    try {
+        const token = localStorage.getItem("token");
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+        const queryParams = {
+            page,
+            search,
+        };
+
+        const result = await instance.get('/user/student/getAll', { params: queryParams, headers });
+        return result;
+    } catch (error) {
+        return error;
+    }
+
+}
+
+export const updateInformation = async (id, data) => {
+    try {
+        const token = localStorage.getItem("token");
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+        const result = await instance.patch(`/user/student/update/${id}`, data, { headers });
+        return result;
+    } catch (error) {
+        return error;
+    }
+
+}

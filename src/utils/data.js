@@ -47,4 +47,15 @@ export const majorList = [
 
 export const courseList = ["44", "45", "46", "47", "48", "49", "50"];
 
-export const capacity = ["2", "3", "4", "5", "6", "7", "8"];
+export const capacity = [2, 3, 4, 5, 6, 7, 8];
+
+export const actualCapacity = [1, 2, 3, 4, 5, 6, 7, 8];
+
+export const ListRoomType = [
+    "Phòng 2 người ở",
+    "Phòng 3 người ở",
+    "Phòng 4 người ở",
+    "Phòng 5 người ở",
+    "Phòng 6 người ở",
+    "Phòng 8 người ở"
+];

@@ -5,7 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Navigator from '../../components/admindashboard/Navigator';
 import PropTypes from 'prop-types';
-import { Button, Grid, TextField, MenuItem, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Stack, Pagination } from '@mui/material';
+import { Button, Tooltip, TextField, MenuItem, Dialog, DialogActions, DialogContent, IconButton, DialogTitle, Divider, Stack, Pagination, DialogContentText, Slide } from '@mui/material';
 import { CustomTabPanel } from '../../utils/createTheme';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -16,18 +16,16 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-const names = [
-    'Oliver Hansen',
-    'Van Henry',
-    'April Tucker',
-    'Ralph Hubbard',
-    'Omar Alexander',
-    'Carlos Abbott',
-    'Miriam Wagner',
-    'Bradley Wilkerson',
-    'Virginia Andrews',
-    'Kelly Snyder',
-];
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import EditIcon from '@mui/icons-material/Edit';
+import { addRoom, deleteRoom, getAllListBuilding, getRoomInformation, getRoomList, updateInformationRoom } from '../../api/room.api';
+import { toast } from 'react-toastify';
+import { actualCapacity, capacity, ListRoomType } from '../../utils/data';
+import { Link } from 'react-router-dom';
+
+
 
 
 CustomTabPanel.propTypes = {
@@ -182,175 +180,112 @@ theme = {
         },
     },
 };
-
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 const drawerWidth = 256;
-function createData(maPhong, maToaNha, loaiPhong, phongNam, trangThai, sucChua, soChoOThucTe, daO, conTrong, gia, phongNauAn) {
-    return { maPhong, maToaNha, loaiPhong, phongNam, trangThai, sucChua, soChoOThucTe, daO, conTrong, gia, phongNauAn };
-}
-
-const rows = [
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-    createData("B105", "B1", "Phòng 8 người ở", "Nam", "Đang sử dụng", 8, 8, 6, 2, "170.000", "Có thể"),
-
-
-];
-const building = [
-    {
-        "khu": "A",
-        "data": [
-            {
-                "id": 1,
-                "toaNha": "B1",
-                "soPhong": "120",
-                "phongTrong": "150"
-            },
-            {
-                "id": 2,
-                "toaNha": "B2",
-                "soPhong": "120",
-                "phongTrong": "150"
-            },
-            {
-                "id": 3,
-                "toaNha": "B3",
-                "soPhong": "120",
-                "phongTrong": "50"
-            }, {
-                "id": 4,
-                "toaNha": "B4",
-                "soPhong": "120",
-                "phongTrong": "50"
-            },
-            {
-                "id": 5,
-                "toaNha": "B1",
-                "soPhong": "120",
-                "phongTrong": "150"
-            },
-            {
-                "id": 6,
-                "toaNha": "B2",
-                "soPhong": "120",
-                "phongTrong": "150"
-            },
-            {
-                "id": 7,
-                "toaNha": "B3",
-                "soPhong": "120",
-                "phongTrong": "50"
-            }, {
-                "id": 8,
-                "toaNha": "B4",
-                "soPhong": "120",
-                "phongTrong": "50"
-            },
-            {
-                "id": 9,
-                "toaNha": "B1",
-                "soPhong": "120",
-                "phongTrong": "150"
-            },
-            {
-                "id": 10,
-                "toaNha": "B2",
-                "soPhong": "120",
-                "phongTrong": "150"
-            },
-            {
-                "id": 11,
-                "toaNha": "B3",
-                "soPhong": "120",
-                "phongTrong": "50"
-            }, {
-                "id": 12,
-                "toaNha": "B4",
-                "soPhong": "120",
-                "phongTrong": "50"
-            },
-        ]
-    },
-    {
-        "khu": "B",
-        "data": [
-            {
-                "id": 1,
-                "toaNha": "B1",
-                "soPhong": "120",
-                "phongTrong": "150"
-            },
-            {
-                "id": 2,
-                "toaNha": "B2",
-                "soPhong": "120",
-                "phongTrong": "150"
-            },
-            {
-                "id": 3,
-                "toaNha": "B3",
-                "soPhong": "1220",
-                "phongTrong": "150"
-            },
-            {
-                "id": 4,
-                "toaNha": "B4",
-                "soPhong": "120",
-                "phongTrong": "50"
-            },
-        ]
-    },
-    {
-        "khu": "C",
-        "data": [
-            {
-                "id": 1,
-                "toaNha": "B1",
-                "soPhong": "120",
-                "phongTrong": "150"
-            },
-            {
-                "id": 2,
-                "toaNha": "B2",
-                "soPhong": "120",
-                "phongTrong": "150"
-            },
-            {
-                "id": 3,
-                "toaNha": "B3",
-                "soPhong": "120",
-                "phongTrong": "50"
-            },
-            {
-                "id": 4,
-                "toaNha": "B4",
-                "soPhong": "120",
-                "phongTrong": "50"
-            },]
-    },
-];
 const RoomManagerDashboard = () => {
     const [mobileOpen, setMobileOpen] = React.useState(false);
-    const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
-    const [personName, setPersonName] = React.useState('');
     const [openDelete, setOpenDelete] = React.useState(false);
     const [openEdit, setOpenEdit] = React.useState(false);
     const [openAddRoom, setOpenAddRoom] = React.useState(false);
-    const [openDetail, setOpenDetail] = React.useState(false);
+    const [currentPage, setCurrentPage] = React.useState(1);
+    const [search, setSearch] = React.useState("");
+    const [filter, setFilter] = React.useState({ areaCode: "" });
+    const [dataRoomList, setDataRoomList] = React.useState([]);
+    const [dataBuildingList, setDataBuildingList] = React.useState([]);
+    const [id, setId] = React.useState(0);
+    const [addNewRoom, setAddNewRoom] = React.useState({ roomCode: "", roomType: "", capacity: 0, actualCapacity: 0, roomMale: "", kitchen: "", price: 0, buildingId: 0 });
+    const [updateRoom, setUpdateRoom] = React.useState({ roomCode: "", roomType: "", capacity: 0, actualCapacity: 0, roomMale: "", kitchen: "", price: 0, status: "" });
+    const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
 
-    const handleChange = (event) => {
-        setPersonName(event.target.value);
+    const fetchApiListRoom = async () => {
+        const res = await getRoomList(currentPage, search, filter);
+        setDataRoomList(res.data);
     };
+
+    const handleChangePage = (event, newPage) => {
+        setCurrentPage(newPage);
+    };
+
+    const handleEdit = async (idRoom) => {
+        const res = await getRoomInformation(idRoom);
+        setUpdateRoom({
+            status: res.data.status,
+            roomCode: res.data.roomCode,
+            roomType: res.data.roomType,
+            capacity: res.data.capacity,
+            actualCapacity: res.data.actualCapacity,
+            roomMale: res.data.roomMale,
+            kitchen: res.data.kitchen,
+            price: res.data.price
+        });
+        setOpenEdit(true);
+    };
+
+    const handleUpdate = async () => {
+        const res = await updateInformationRoom(id, updateRoom);
+        if (res.status === 200) {
+            setOpenEdit(false);
+            setId(0);
+            return toast.success("Đã cập nhật!", { position: "bottom-right", autoClose: 1000 });
+        } else {
+            setOpenEdit(false);
+            setId(0);
+            return toast.error("Có lỗi xảy ra!", { position: "bottom-right", autoClose: 1000 });
+        }
+    }
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
+
+    const handleAddRoom = async () => {
+        if (
+            addNewRoom.actualCapacity < 1
+            || addNewRoom.buildingId < 1
+            || addNewRoom.capacity < 1
+            || addNewRoom.price < 1
+            || addNewRoom.roomCode.length < 1
+            || addNewRoom.roomMale.length < 1
+            || addNewRoom.roomType.length < 1
+        ) {
+            return toast.error("Vui lòng điền đầy đủ thông tin!", { position: "bottom-right", autoClose: 1000 });
+        }
+        const res = await addRoom(addNewRoom);
+        if (res.status === 200) {
+            setOpenAddRoom(false);
+            setAddNewRoom({ roomCode: "", roomType: "", capacity: 0, actualCapacity: 0, roomMale: "", kitchen: "", price: 0, buildingId: 0 });
+            return toast.success("Thêm thành công!", { position: "bottom-right", autoClose: 1000 });
+        } else
+            return toast.error("Phòng đã tồn tại!", { position: "bottom-right", autoClose: 1000 });
+
+    }
+
+    const handleDelete = async () => {
+        const res = await deleteRoom(id);
+        if (res.status === 200) {
+            setOpenDelete(false);
+            setId(0);
+            toast.success("Đã xóa!", { position: "bottom-right", autoClose: 1000 });
+        } else {
+            setOpenDelete(false);
+            setId(0);
+            toast.error("Có lỗi xảy ra!", { position: "bottom-right", autoClose: 1000 });
+        }
+    }
+
+    React.useEffect(() => {
+        fetchApiListRoom();
+    }, [currentPage, search, filter, id, openAddRoom]);
+
+    React.useEffect(() => {
+        const fetchApiListBuilding = async () => {
+            const res = await getAllListBuilding();
+            setDataBuildingList(res.data);
+        };
+        fetchApiListBuilding();
+    }, []);
 
     return (
         <ThemeProvider theme={theme}>
@@ -375,66 +310,175 @@ const RoomManagerDashboard = () => {
                     />
                 </Box>
                 <div className='w-full bg-gray-200'>
-                    <div className='bg-white p-5 mt-5 mx-5 rounded-t-md'>
+                    <div className='bg-white p-5 mx-5 rounded-md'>
                         <h2>
                             Bộ lọc
                         </h2>
-                        <div className='grid grid-cols-1 sm:grid-cols-2 mt-2'>
-                            <div className='flex my-2'>
+                        <div className='grid grid-cols-1 sm:grid-cols-2'>
+                            <div className='flex my-2 mx-2'>
                                 <TextField
                                     select
                                     label="Chọn tòa nhà"
-                                    value={personName}
-                                    onChange={handleChange}
+                                    value={filter.areaCode}
+                                    onChange={(e) => { setFilter({ areaCode: e.target.value }); setCurrentPage(1) }}
                                     sx={{ maxWidth: 300 }}
                                     fullWidth
                                 >
-                                    {names.map((name) => (
-                                        <MenuItem key={name} value={name}>
-                                            {name}
+                                    {dataBuildingList && dataBuildingList?.map((e) => (
+                                        <MenuItem key={e.id} value={e.areaCode}>
+                                            Khu {e.area} {"-"} dãy {e.areaCode}
                                         </MenuItem>
                                     ))}
                                 </TextField>
 
-                                <Button variant='contained' size='large' sx={{ paddingY: 2, marginLeft: 2, maxHeight: 54 }}>
-                                    Lọc
-                                </Button>
+                                <Tooltip title="Bỏ lọc" placement="top" onClick={() => setFilter({ areaCode: "" })}>
+                                    <Button variant='contained' size='large' sx={{ paddingY: 2, marginLeft: 1, maxHeight: 54 }}>
+                                        <FilterAltOffIcon />
+                                    </Button>
+                                </Tooltip>
                             </div>
-                            <div className='flex mt-2 mx-2'>
+                            <div className='flex mt-2 mx-2 justify-end'>
                                 <TextField
+                                    onChange={(e) => setSearch(e.target.value)}
                                     label="Tìm kiếm phòng"
                                     fullWidth
                                     sx={{ maxWidth: 300 }}
                                 />
-                                <Button onClick={() => setOpenAddRoom(true)} variant='outlined' color='success' size='small' sx={{ paddingY: 2, marginLeft: 2, maxHeight: 54 }}>
+
+                                <Button onClick={() => setOpenAddRoom(true)} variant='contained' color='success' size='small' sx={{ paddingY: 2, marginLeft: 2, maxHeight: 54 }}>
                                     Thêm phòng
                                 </Button>
                             </div>
                             <Dialog open={openAddRoom} onClose={() => setOpenAddRoom(false)}>
                                 <DialogTitle color="blue">Thêm mới phòng </DialogTitle>
-                                <DialogContent>
-                                    <TextField
-                                        autoFocus
-                                        margin="dense"
-                                        id="name"
-                                        label="Khu vực"
-                                        type="text"
-                                        fullWidth
-                                        variant="standard"
-                                    />
-                                    <TextField
-                                        autoFocus
-                                        margin="dense"
-                                        id="name"
-                                        label="Xoa"
-                                        type="text"
-                                        fullWidth
-                                        variant="standard"
-                                    />
+                                <DialogContent sx={{ maxWidth: 800 }}>
+                                    <div className='grid grid-cols-2 gap-4'>
+                                        <div>
+                                            <TextField
+                                                select
+                                                label="Chọn tòa nhà"
+                                                value={addNewRoom.buildingId < 1 ? "" : addNewRoom.buildingId}
+                                                onChange={(e) => setAddNewRoom({ ...addNewRoom, buildingId: e.target.value })}
+                                                sx={{ maxWidth: 300, marginBottom: 2, marginTop: 1 }}
+                                                fullWidth
+
+                                            >
+                                                {dataBuildingList && dataBuildingList?.map((e) => (
+                                                    <MenuItem key={e.id} value={e.id}>
+                                                        Tòa {e.areaCode}
+                                                    </MenuItem>
+                                                ))}
+                                            </TextField>
+
+                                            <TextField
+                                                fullWidth
+                                                label="Mã phòng"
+                                                id="Mã phòng"
+                                                onChange={(e) => setAddNewRoom({ ...addNewRoom, roomCode: e.target.value })}
+                                                sx={{ maxWidth: 300, marginBottom: 2 }}
+                                            />
+
+                                            <TextField
+                                                select
+                                                label="Loại phòng"
+                                                value={addNewRoom.roomType}
+                                                onChange={(e) => setAddNewRoom({ ...addNewRoom, roomType: e.target.value })}
+                                                sx={{ maxWidth: 300, marginBottom: 2 }}
+                                                fullWidth
+
+                                            >
+                                                {ListRoomType.map((e, index) => (
+                                                    <MenuItem key={index} value={e}>
+                                                        {e}
+                                                    </MenuItem>
+                                                ))}
+                                            </TextField>
+
+                                            <TextField
+                                                select
+                                                label="Sức chứa"
+                                                value={addNewRoom.capacity > 0 ? addNewRoom.capacity : ""}
+                                                onChange={(e) => setAddNewRoom({ ...addNewRoom, capacity: e.target.value })}
+                                                sx={{ maxWidth: 300, marginBottom: 2 }}
+                                                fullWidth
+
+                                            >
+                                                {capacity.map((e, index) => (
+                                                    <MenuItem key={index} value={e}>
+                                                        {e}
+                                                    </MenuItem>
+                                                ))}
+                                            </TextField>
+                                        </div>
+
+                                        <div>
+                                            <TextField
+                                                select
+                                                label="Số chỗ ở thực tế"
+                                                value={addNewRoom.actualCapacity > 0 ? addNewRoom.actualCapacity : ""}
+                                                onChange={(e) => setAddNewRoom({ ...addNewRoom, actualCapacity: e.target.value })}
+                                                sx={{ maxWidth: 300, marginBottom: 2, marginTop: 1 }}
+                                                fullWidth
+
+                                            >
+                                                {actualCapacity.map((e, index) => (
+                                                    <MenuItem key={index} value={e}>
+                                                        {e}
+                                                    </MenuItem>
+                                                ))}
+                                            </TextField>
+
+                                            <TextField
+                                                select
+                                                label="Phòng Nam/Nữ"
+                                                value={addNewRoom.roomMale}
+                                                onChange={(e) => setAddNewRoom({ ...addNewRoom, roomMale: e.target.value })}
+                                                sx={{ maxWidth: 300, marginBottom: 2 }}
+                                                fullWidth
+
+                                            >
+                                                <MenuItem value="Nam">
+                                                    Nam
+                                                </MenuItem>
+
+                                                <MenuItem value="Nữ">
+                                                    Nữ
+                                                </MenuItem>
+                                            </TextField>
+
+                                            <TextField
+                                                select
+                                                label="Phòng nấu ăn"
+                                                value={addNewRoom.kitchen}
+                                                onChange={(e) => setAddNewRoom({ ...addNewRoom, kitchen: e.target.value })}
+                                                sx={{ maxWidth: 300, marginBottom: 2 }}
+                                                fullWidth
+
+                                            >
+                                                <MenuItem value={true}>
+                                                    Có thể
+                                                </MenuItem>
+                                                <MenuItem value={false}>
+                                                    Không thể
+                                                </MenuItem>
+                                            </TextField>
+
+                                            <TextField
+                                                fullWidth
+                                                type='number'
+                                                label="Giá phòng"
+                                                id="Giá phòng"
+                                                onChange={(e) => setAddNewRoom({ ...addNewRoom, price: e.target.value })}
+                                                sx={{ maxWidth: 300, marginBottom: 2 }}
+                                            />
+                                        </div>
+                                    </div>
+
+
                                 </DialogContent>
                                 <DialogActions>
                                     <Button onClick={() => setOpenAddRoom(false)}>Hủy</Button>
-                                    <Button onClick={() => setOpenAddRoom(false)}>Thêm mới</Button>
+                                    <Button onClick={handleAddRoom}>Thêm mới</Button>
                                 </DialogActions>
                             </Dialog>
                         </div>
@@ -450,7 +494,11 @@ const RoomManagerDashboard = () => {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell align='center' className='border-r-2 '>Mã phòng</TableCell>
-                                        <TableCell align='center' className='border-r-2'>Loại phòng</TableCell>
+                                        <TableCell align='center' className='border-r-2 '>Mã tòa nhà</TableCell>
+                                        {/* <TableCell align='center' className='border-r-2'>Loại phòng</TableCell> */}
+                                        <TableCell align='center' className='border-r-2'>Phòng Nam/Nữ</TableCell>
+                                        <TableCell align='center' className='border-r-2'>Trạng thái</TableCell>
+                                        <TableCell align='center' className='border-r-2'>Sức chứa</TableCell>
                                         <TableCell align='center' className='border-r-2'>Số chỗ ở thực tế</TableCell>
                                         <TableCell align='center' className='border-r-2'>Đã ở</TableCell>
                                         <TableCell align='center' className='border-r-2'>Còn trống</TableCell>
@@ -460,118 +508,212 @@ const RoomManagerDashboard = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {rows.map((row) => (
+                                    {dataRoomList ? dataRoomList?.data?.map((e) => (
                                         <TableRow
-                                            key={row.name}
+                                            key={e.id}
 
                                         >
-                                            <TableCell align='center' className='border-r-2' >{row.maPhong}</TableCell>
-                                            <TableCell align='center' className='border-r-2'>{row.loaiPhong}</TableCell>
-                                            <TableCell align='center' className='border-r-2'>{row.soChoOThucTe}</TableCell>
-                                            <TableCell align='center' className='border-r-2'>{row.daO}</TableCell>
-                                            <TableCell align='center' className='border-r-2'>{row.conTrong}</TableCell>
-                                            <TableCell align='center' className='border-r-2'>{row.phongNauAn}</TableCell>
-                                            <TableCell align='center' className='border-r-2'>{row.gia}</TableCell>
+                                            <TableCell align='center' className='border-r-2' >{e.roomCode}</TableCell>
+                                            <TableCell align='center' className='border-r-2' >{e.building.areaCode}</TableCell>
+                                            {/* <TableCell align='center' className='border-r-2'>{row.loaiPhong}</TableCell> */}
+                                            <TableCell align='center' className='border-r-2'>{e.roomMale}</TableCell>
+                                            <TableCell align='center' className='border-r-2'>{(e.status) ? "Đang sử dụng" : "Đang bảo trì"}</TableCell>
+                                            <TableCell align='center' className='border-r-2'>{e.capacity}</TableCell>
+                                            <TableCell align='center' className='border-r-2'>{e.actualCapacity}</TableCell>
+                                            <TableCell align='center' className='border-r-2'>{e.wereThere}</TableCell>
+                                            <TableCell align='center' className='border-r-2'>{e.empty}</TableCell>
+                                            <TableCell align='center' className='border-r-2'>{(e.kitchen) ? "Có thể" : "Không thể"}</TableCell>
+                                            <TableCell align='center' className='border-r-2'>{e.price && e?.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}đ</TableCell>
                                             <TableCell align='center' >
-                                                <Button onClick={() => setOpenDelete(true)} variant="outlined" color='error' size='small' sx={{ marginX: 1 }} startIcon={<DeleteIcon />}>
-                                                    Xóa
-                                                </Button>
-                                                <Button onClick={() => setOpenEdit(true)} variant="outlined" color='success' size='small' sx={{ marginX: 1 }} startIcon={<DeleteIcon />}>
-                                                    Sửa
-                                                </Button>
-                                                <Button onClick={() => setOpenDetail(true)} variant="outlined" color='primary' size='small' startIcon={<RemoveRedEyeIcon />}>
-                                                    Xem
-                                                </Button>
+                                                <Tooltip title="Xóa" placement='top'>
+                                                    <IconButton sx={{ color: "red" }} onClick={() => { setOpenDelete(true); setId(e.id); }}>
+                                                        <DeleteIcon />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Sửa" placement='top' >
+                                                    <IconButton sx={{ color: "green" }} onClick={() => { handleEdit(e.id); setId(e.id); }}>
+                                                        <EditIcon />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Xem chi tiết" placement='top'>
+                                                    <Link to="/admin/dashboard/danhsachphong/chitiet" state={{ id: e.id }}>
+                                                        <IconButton sx={{ color: "#2196f3" }}>
+                                                            <RemoveRedEyeIcon />
+                                                        </IconButton>
+                                                    </Link>
+                                                </Tooltip>
                                             </TableCell>
                                         </TableRow>
-                                    ))}
+                                    )) : (
+                                        <TableRow>
+                                            <TableCell colSpan={12} align="center" component="th" scope="row" style={{ padding: "4px", color: "red", fontSize: "20px" }}>
+                                                Không có dữ liệu
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                        <Stack spacing={2} padding={2} className='flex justify-center items-center'>
-                            <Pagination count={10} color="primary" />
-                        </Stack>
+                        {dataRoomList && (<Stack spacing={2} padding={2} className='flex justify-center items-center'>
+                            <Pagination
+                                count={Math.ceil(dataRoomList?.total / dataRoomList?.data_per_page)}
+                                page={currentPage}
+                                // rowsPerPage={data?.data_per_page}
+                                color="primary"
+                                onChange={handleChangePage}
+                            />
+                        </Stack>)}
                     </div>
                 </div>
-                <Dialog open={openDetail} onClose={() => setOpenDetail(false)}>
-                    <DialogTitle color="blue">Chi tiết phòng</DialogTitle>
+
+                <Dialog
+                    open={openDelete}
+                    TransitionComponent={Transition}
+                    keepMounted
+                    onClose={() => setOpenDelete(false)}
+                // aria-describedby="alert-dialog-slide-description"
+                >
+                    <DialogTitle>{"Bạn có muốn xóa phòng này?"}</DialogTitle>
                     <DialogContent>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="name"
-                            label="Khu vực"
-                            type="text"
-                            fullWidth
-                            variant="standard"
-                        />
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="name"
-                            label="Xoa"
-                            type="text"
-                            fullWidth
-                            variant="standard"
-                        />
+                        <DialogContentText id="alert-dialog-slide-description">
+                            Sau khi xóa tất cả thông tin liên quan đến phòng này sẽ mất!
+                        </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => setOpenDetail(false)}>Hủy</Button>
-                        <Button onClick={() => setOpenDetail(false)}>Thêm mới</Button>
-                    </DialogActions>
-                </Dialog>
-                <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
-                    <DialogTitle>Thêm mới tòa nhà </DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="name"
-                            label="Khu vực"
-                            type="text"
-                            fullWidth
-                            variant="standard"
-                        />
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="name"
-                            label="Xoa"
-                            type="text"
-                            fullWidth
-                            variant="standard"
-                        />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={() => setOpenDelete(false)}>Hủy</Button>
-                        <Button onClick={() => setOpenDelete(false)}>Thêm mới</Button>
+                        <Button onClick={handleDelete}>Đồng ý</Button>
+                        <Button onClick={() => { setOpenDelete(false); setId(0); }}>Hủy bỏ</Button>
                     </DialogActions>
                 </Dialog>
                 <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
-                    <DialogTitle>Thêm mới tòa nhà </DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="name"
-                            label="Khu vực"
-                            type="text"
-                            fullWidth
-                            variant="standard"
-                        />
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="name"
-                            label="Edit"
-                            type="text"
-                            fullWidth
-                            variant="standard"
-                        />
+                    <DialogTitle color="blue"> Chỉnh sửa thông tin phòng</DialogTitle>
+                    <DialogContent sx={{ maxWidth: 800 }}>
+                        <div className='grid grid-cols-2 gap-4'>
+                            <div>
+                                <TextField
+                                    select
+                                    label="Trạng thái phòng"
+                                    value={updateRoom.status}
+                                    onChange={(e) => setUpdateRoom({ ...updateRoom, status: e.target.value })}
+                                    sx={{ maxWidth: 300, marginBottom: 2, marginTop: 1 }}
+                                    fullWidth
+
+                                >
+                                    <MenuItem value={true}>
+                                        Đang sử dụng
+                                    </MenuItem>
+
+                                    <MenuItem value={false}>
+                                        Bảo trì
+                                    </MenuItem>
+                                </TextField>
+
+                                <TextField
+                                    fullWidth
+                                    label="Mã phòng"
+                                    id="Mã phòng"
+                                    value={updateRoom?.roomCode}
+                                    onChange={(e) => setUpdateRoom({ ...updateRoom, roomCode: e.target.value })}
+                                    sx={{ maxWidth: 300, marginBottom: 2 }}
+                                />
+
+                                <TextField
+                                    select
+                                    label="Loại phòng"
+                                    value={updateRoom?.roomType}
+                                    onChange={(e) => setUpdateRoom({ ...updateRoom, roomType: e.target.value })}
+                                    sx={{ maxWidth: 300, marginBottom: 2 }}
+                                    fullWidth
+
+                                >
+                                    {ListRoomType.map((e, index) => (
+                                        <MenuItem key={index} value={e}>
+                                            {e}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+
+                                <TextField
+                                    select
+                                    label="Sức chứa"
+                                    value={updateRoom.capacity > 0 ? updateRoom.capacity : ""}
+                                    onChange={(e) => setUpdateRoom({ ...updateRoom, capacity: e.target.value })}
+                                    sx={{ maxWidth: 300, marginBottom: 2 }}
+                                    fullWidth
+
+                                >
+                                    {capacity.map((e, index) => (
+                                        <MenuItem key={index} value={e}>
+                                            {e}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </div>
+
+                            <div>
+                                <TextField
+                                    select
+                                    label="Số chỗ ở thực tế"
+                                    value={updateRoom.actualCapacity > 0 ? updateRoom.actualCapacity : ""}
+                                    onChange={(e) => setUpdateRoom({ ...updateRoom, actualCapacity: e.target.value })}
+                                    sx={{ maxWidth: 300, marginBottom: 2, marginTop: 1 }}
+                                    fullWidth
+
+                                >
+                                    {actualCapacity.map((e, index) => (
+                                        <MenuItem key={index} value={e}>
+                                            {e}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+
+                                <TextField
+                                    select
+                                    label="Phòng Nam/Nữ"
+                                    value={updateRoom.roomMale}
+                                    onChange={(e) => setUpdateRoom({ ...updateRoom, roomMale: e.target.value })}
+                                    sx={{ maxWidth: 300, marginBottom: 2 }}
+                                    fullWidth
+                                >
+                                    <MenuItem value="Nam">
+                                        Nam
+                                    </MenuItem>
+
+                                    <MenuItem value="Nữ">
+                                        Nữ
+                                    </MenuItem>
+                                </TextField>
+
+                                <TextField
+                                    select
+                                    label="Phòng nấu ăn"
+                                    value={updateRoom.kitchen}
+                                    onChange={(e) => setUpdateRoom({ ...updateRoom, kitchen: e.target.value })}
+                                    sx={{ maxWidth: 300, marginBottom: 2 }}
+                                    fullWidth
+                                >
+                                    <MenuItem value={true}>
+                                        Có thể
+                                    </MenuItem>
+                                    <MenuItem value={false}>
+                                        Không thể
+                                    </MenuItem>
+                                </TextField>
+
+                                <TextField
+                                    fullWidth
+                                    type='number'
+                                    value={updateRoom.price}
+                                    label="Giá phòng"
+                                    id="Giá phòng"
+                                    onChange={(e) => setUpdateRoom({ ...updateRoom, price: e.target.value })}
+                                    sx={{ maxWidth: 300, marginBottom: 2 }}
+                                />
+                            </div>
+                        </div>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => setOpenEdit(false)}>Hủy</Button>
-                        <Button onClick={() => setOpenEdit(false)}>Thêm mới</Button>
+                        <Button onClick={() => { setOpenEdit(false); setId(0); }}>Hủy</Button>
+                        <Button onClick={handleUpdate}>Lưu lại</Button>
                     </DialogActions>
                 </Dialog>
             </Box>

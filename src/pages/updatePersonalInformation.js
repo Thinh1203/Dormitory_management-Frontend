@@ -3,23 +3,48 @@ import Footer from "../components/Footer";
 import Header from "../components/Header";
 import EditIcon from '@mui/icons-material/Edit';
 import * as React from 'react';
-import { getInformation } from "../api/student.api";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { checkEmail, checkPhoneNumber } from "../utils/validation";
+import { toast } from "react-toastify";
+import { updateInformation } from "../api/student.api";
 
 
-
-const PersonalInformation = () => {
+const UpdatePersonalInformation = () => {
     const [information, setInformation] = React.useState({});
+    const [open, setOpen] = React.useState(false);
+    const location = useLocation();
     const navigate = useNavigate();
+    const user = location.state.information;
 
-    React.useEffect(() => {
-        const fetchApi = async () => {
-            const res = await getInformation();
-            setInformation(res.data);
+    const [updateData, setUpdateData] = React.useState({
+        email: user.email,
+        address: user.address,
+        numberPhone: user.numberPhone,
+        identificationNumber: user.identificationNumber,
+        relativeName: user.relativeName,
+        relativeNumberPhone: user.relativeNumberPhone,
+        relationship: user.relationship
+    });
+    const handleUpdate = (e) => {
+        e.preventDefault();
+        if (!checkPhoneNumber(updateData.numberPhone) || !checkPhoneNumber(updateData.relativeNumberPhone))
+            return toast.error("Số điện thoại không hợp lệ!", { position: "bottom-right", autoClose: 1000 });
+        if (!checkEmail(updateData.email))
+            return toast.error("Địa chỉ email không hợp lệ!", { position: "bottom-right", autoClose: 1000 });
 
-        };
-        fetchApi();
-    }, []);
+        const update = async () => {
+            const res = await updateInformation(user?.id, updateData);
+            if (res.status === 200) {
+                toast.success("Cập nhật thành công!", { position: "bottom-right", autoClose: 1000 });
+                return setTimeout(() => {
+                    navigate("/thongtincanhan");
+                }, 2000);
+            } else {
+                return toast.error("Có lỗi xảy ra!", { position: "bottom-right", autoClose: 1000 });
+            }
+        }
+        update();
+    };
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} className="bg-gray-200">
@@ -31,24 +56,23 @@ const PersonalInformation = () => {
                             <thead className="text-xs text-gray-700 uppercase dark:text-gray-400">
                                 <tr>
                                     <th scope="col" colSpan={5} className="px-6 py-3 bg-blue-700 text-white text-center">
-                                        Thông tin sinh viên
+                                        Cập nhật thông tin sinh viên
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                                    <th scope="row" rowSpan={8} className="px-6 py-4 font-medium whitespace-nowrap bg-gray-100 dark:bg-gray-800">
-                                        <div>
-                                            <img src={'http://localhost:8088/' + information?.avatar} alt="Avatar" className="max-w-xs" />
+                                    <th scope="row" rowSpan={8} className=" py-4 font-medium whitespace-nowrap bg-gray-100 dark:bg-gray-800">
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <Button
+                                                onClick={(e) => handleUpdate(e)}
+                                                startIcon={<EditIcon />}
+                                                variant="contained"
+                                                color="success"
+                                                size="small"
+                                                sx={{ marginY: 2, marginX: 2 }}
+                                            >Cập nhật</Button>
                                         </div>
-                                        <Button
-                                            onClick={() => navigate("/capnhatthongtincanhan", { state: { information } })}
-                                            startIcon={<EditIcon />}
-                                            variant="contained"
-                                            color="success"
-                                            size="small"
-                                            sx={{ marginY: 2 }}
-                                        >Cập nhật thông tin</Button>
                                     </th>
 
                                 </tr>
@@ -57,13 +81,13 @@ const PersonalInformation = () => {
                                         Họ và tên
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {information?.fullName}
+                                        {user?.fullName}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs">
                                         Giới tính
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {information?.gender}
+                                        {user?.gender}
                                     </td>
                                 </tr>
 
@@ -72,13 +96,13 @@ const PersonalInformation = () => {
                                         Mã số sinh viên
                                     </td>
                                     <td className="px-6 py- sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {information?.mssv}
+                                        {user?.mssv}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs">
                                         Ngày sinh
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {new Date(information?.birthday).toLocaleDateString('en-GB')}
+                                        {new Date(user?.birthday).toLocaleDateString('en-GB')}
                                     </td>
                                 </tr>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -86,13 +110,23 @@ const PersonalInformation = () => {
                                         Địa chỉ email
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {information?.email}
+                                        <input
+                                            className="w-full p-1 border-2"
+                                            type="text"
+                                            value={updateData.email}
+                                            onChange={(e) => setUpdateData({ ...updateData, email: e.target.value })}
+                                        />
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs">
                                         Địa chỉ
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {information?.address}
+                                        <input
+                                            className="w-full p-1 border-2"
+                                            type="text"
+                                            value={updateData?.address}
+                                            onChange={(e) => setUpdateData({ ...updateData, address: e.target.value })}
+                                        />
                                     </td>
                                 </tr>
                                 <tr className="border-b border-gray700-200 dark:border-gray-">
@@ -100,13 +134,23 @@ const PersonalInformation = () => {
                                         Mã căn cước công dân
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {information?.identificationNumber}
+                                        <input
+                                            className="w-full p-1 border-2"
+                                            type="text"
+                                            value={updateData.identificationNumber}
+                                            onChange={(e) => setUpdateData({ ...updateData, identificationNumber: e.target.value })}
+                                        />
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs">
                                         Số điện thoại
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {information?.numberPhone}
+                                        <input
+                                            className="w-full p-1 border-2"
+                                            type="text"
+                                            value={updateData?.numberPhone}
+                                            onChange={(e) => setUpdateData({ ...updateData, numberPhone: e.target.value })}
+                                        />
                                     </td>
                                 </tr>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -114,13 +158,13 @@ const PersonalInformation = () => {
                                         Ngành học
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {information?.major}
+                                        {user?.major}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs">
                                         Mã lớp
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {information?.classs}
+                                        {user.classs}
                                     </td>
                                 </tr>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -128,13 +172,18 @@ const PersonalInformation = () => {
                                         Họ và tên người thân
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {information?.relativeName}
+                                        <input
+                                            className="w-full p-1 border-2"
+                                            type="text"
+                                            value={updateData.relativeName}
+                                            onChange={(e) => setUpdateData({ ...updateData, relativeName: e.target.value })}
+                                        />
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs">
                                         Khóa
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {information?.course}
+                                        {user?.course}
                                     </td>
                                 </tr>
                                 <tr>
@@ -142,24 +191,33 @@ const PersonalInformation = () => {
                                         Số điện thoại người thân
                                     </td>
                                     <td className="px-6 py-2 bg-gray-50 dark:bg-gray-800 sm:text-sm text-xs">
-                                        {information?.relativeNumberPhone}
+                                        <input
+                                            className="w-full p-1 border-2"
+                                            type="text"
+                                            value={updateData?.relativeNumberPhone}
+                                            onChange={(e) => setUpdateData({ ...updateData, relativeNumberPhone: e.target.value })}
+                                        />
                                     </td>
                                     <td className="px-6 py-2">
                                         Mối quan hệ
                                     </td>
                                     <td className="px-6 py-2 bg-gray-50 dark:bg-gray-800">
-                                        {information?.relationship}
+                                        <input
+                                            className="w-full p-1 border-2"
+                                            type="text"
+                                            value={updateData?.relationship}
+                                            onChange={(e) => setUpdateData({ ...updateData, relationship: e.target.value })}
+                                        />
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </Grid>
-
             </Container>
             <Footer />
         </div>
     );
 }
 
-export default PersonalInformation;
+export default UpdatePersonalInformation;

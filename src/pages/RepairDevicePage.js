@@ -138,7 +138,7 @@ const RepairDevicePage = () => {
                             <Button variant="contained" size="small" onClick={handleClickOpen} sx={{marginX: 1}}>
                                 Đăng ký
                             </Button>
-                            {list.length > 0 && (<Button variant="contained" size="small" color="error" onClick={handleClickOpen}>
+                            {list.length > 0 && (<Button variant="contained" size="small" color="error" onClick={handleClickOpen} disabled={true}>
                                 Hủy đăng ký
                             </Button>)}
                             <Dialog

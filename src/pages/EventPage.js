@@ -1,47 +1,43 @@
-import { Container, Grid, Typography, CardMedia, CardContent, CardActionArea, Card, Divider } from "@mui/material";
+import { Container, Grid, Typography, CardMedia, CardContent, CardActionArea, Card, Divider, Pagination, Stack, Button } from "@mui/material";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import React, { useEffect } from "react";
+import { getAllNotification, getOneNotification } from "../api/notification.api";
 
-const List = [
-    {
-        "id": 1,
-        "title": "Thông báo đăng ký ở ktx học kỳ 1 năm 2023-2024",
-        "date": "22/12/2023"
-    },
-    {
-        "id": 2,
-        "title": "Thông báo đăng ký ở ktx học kỳ 1 năm 2023-2024",
-        "date": "22/12/2023"
-    },
-    {
-        "id": 3,
-        "title": "Thông báo đăng ký ở ktx học kỳ 1 năm 2023-2024",
-        "date": "22/12/2023"
-    },
-    {
-        "id": 4,
-        "title": "Thông báo đăng ký ở ktx học kỳ 1 năm 2023-2024",
-        "date": "22/12/2023"
-    },
-    {
-        "id": 5,
-        "title": "Thông báo đăng ký ở ktx học kỳ 1 năm 2023-2024",
-        "date": "22/12/2023"
-    },
-    {
-        "id": 6,
-        "title": "Thông báo đăng ký ở ktx học kỳ 1 năm 2023-2024",
-        "date": "22/12/2023"
-    },
-    {
-        "id": 7,
-        "title": "Thông báo đăng ký ở ktx học kỳ 1 năm 2023-2024",
-        "date": "22/12/2023"
-    },
-];
+
 
 const EventPage = () => {
+    const [event, setEvent] = React.useState([]);
+    const [currentPage, setCurrentPage] = React.useState(1);
+    const [oneEvent, setOneEvent] = React.useState({});
+    const [open, setOpen] = React.useState(false);
+
+    const handleClickOpen = async (id) => {
+        const res = await getOneNotification(id);
+        setOneEvent(res)
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOneEvent({});
+        setOpen(false);
+    };
+    const handleChangePage = (newPage) => {
+        setCurrentPage(newPage);
+    };
+    useEffect(() => {
+        const fetchApi = async () => {
+            const res = await getAllNotification();
+            setEvent(res.data);
+        }
+        fetchApi();
+    }, [currentPage]);
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} className="bg-gray-200">
             <Header />
@@ -51,23 +47,23 @@ const EventPage = () => {
                         <h2 className="bg-blue-100 text-blue-600 font-semibold text-md px-4 py-2 underline">TIN TỨC - SỰ KIỆN - THÔNG BÁO</h2>
                         <Grid container p={2}>
                             {
-                                List?.map((e, index) => (
-                                    <Grid item xs={12} sm={6} md={4} lg={3} padding={2} key={index}> 
-                                        <Card sx={{ maxWidth: 345 }} >
-                                            <CardActionArea>
+                                event?.data?.map((e) => (
+                                    <Grid item xs={12} sm={6} md={4} lg={3} padding={2} key={e?.id}>
+                                        <Card sx={{ maxWidth: 345 }}>
+                                            <CardActionArea onClick={() => handleClickOpen(e?.id)}>
                                                 <CardMedia
                                                     component="img"
                                                     height="140"
-                                                    image="https://thcsthanhvan.thanhoaiedu.vn/uploads/thcsthanhvan/news/2022_08/hinh-anh-thong-bao.png"
+                                                    image="http://benhvientravinh.com.vn/upload/1002175/20230410/hinh-anh-thong-bao_9488c6da2d.png"
                                                     alt="green iguana"
                                                 />
                                                 <Divider />
                                                 <CardContent>
                                                     <Typography gutterBottom variant="subtitle1" component="div" sx={{ display: "flex" }}>
-                                                        <EventAvailableIcon color="error" fontSize="small" /> <Typography fontSize={15} marginLeft={2} color={"GrayText"}>{e.date}</Typography>
+                                                        <EventAvailableIcon color="error" fontSize="small" /> <Typography fontSize={15} marginLeft={2} color={"GrayText"}>{(new Date(e?.createdAt).toLocaleDateString('en-GB'))}</Typography>
                                                     </Typography>
                                                     <Typography variant="body2" fontWeight={"bold"} color="text.secondary">
-                                                        {e.title}
+                                                        {e?.topic}
                                                     </Typography>
                                                 </CardContent>
                                             </CardActionArea>
@@ -77,6 +73,34 @@ const EventPage = () => {
                                 ))
                             }
                         </Grid>
+                        <Stack spacing={2} padding={2} className='flex justify-center items-center'>
+                            <Pagination
+                                // count={10}
+                                count={Math.ceil(event?.total / event?.data_per_page)}
+                                page={currentPage}
+                                // // rowsPerPage={data?.data_per_page}
+                                color="primary"
+                                onChange={handleChangePage}
+                            />
+                        </Stack>
+                        <Dialog
+                            open={open}
+                            onClose={handleClose}
+                            aria-labelledby="alert-dialog-title"
+                            aria-describedby="alert-dialog-description"
+                        >
+                            <DialogTitle id="alert-dialog-title">
+                                {oneEvent?.data?.topic}
+                            </DialogTitle>
+                            <DialogContent>
+                                <DialogContentText id="alert-dialog-description">
+                                    {oneEvent?.data?.content}
+                                </DialogContentText>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button variant="contained" onClick={handleClose}>Đóng lại</Button>
+                            </DialogActions>
+                        </Dialog>
                     </div>
                 </Container>
             </Grid>

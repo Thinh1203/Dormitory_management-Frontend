@@ -17,7 +17,7 @@ import Paper from '@mui/material/Paper';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import EditIcon from '@mui/icons-material/Edit';
-import { getAll, getOne, updateInformation } from '../../api/student.api';
+import { deleteOne, getAll, getOne, updateInformation } from '../../api/student.api';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -190,6 +190,8 @@ const StudentManagerDashboard = () => {
     const [id, setId] = React.useState(0);
     const [openDetails, setOpenDetails] = React.useState(false);
     const [openEdit, setOpenEdit] = React.useState(false);
+    const [openDelete, setOpenDelete] = React.useState(false);
+    const [reset, setReset] = React.useState(false);
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
 
 
@@ -208,6 +210,18 @@ const StudentManagerDashboard = () => {
     const fetchApiPersonalInformation = async (id) => {
         const res = await getOne(id);
         setDetails(res.data);
+    };
+
+    const deleteOneStudent = async () => {
+        const res = await deleteOne(id);
+        if (res?.status === 200) {
+            setOpenDelete(false);
+            setId(0);
+            setReset(true);
+            return toast.success('Xóa thành công!', { position: "bottom-right", autoClose: 1000 });
+        } else {
+            return toast.error('Có lỗi xảy ra!', { position: "bottom-right", autoClose: 1000 });
+        }
     };
 
     const fetchApiUpdateInformation = async (id) => {
@@ -248,7 +262,7 @@ const StudentManagerDashboard = () => {
             setData(res.data);
         };
         fetchApi();
-    }, [currentPage, search]);
+    }, [currentPage, search, reset]);
 
     return (
         <ThemeProvider theme={theme}>
@@ -316,7 +330,7 @@ const StudentManagerDashboard = () => {
                                             <TableCell align='center' className='border-r-2'>{e.gender}</TableCell>
 
                                             <TableCell align='center' >
-                                                <Tooltip title="Xóa" placement='top'>
+                                                <Tooltip title="Xóa" placement='top' onClick={() => { setOpenDelete(true); setId(e.id); }}>
                                                     <IconButton sx={{ color: "red" }}>
                                                         <DeleteIcon />
                                                     </IconButton>
@@ -544,6 +558,26 @@ const StudentManagerDashboard = () => {
                                 Đóng lại
                             </Button>
                             <Button autoFocus onClick={() => updateApi()}>
+                                Lưu lại
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                    <Dialog
+                        open={openDelete}
+                        aria-labelledby="alert-dialog-title"
+                        aria-describedby="alert-dialog-description"
+                    >
+                        <DialogTitle id="alert-dialog-title" color='red'>
+                            {"Bạn có muốn xóa sinh viên này?"}
+                        </DialogTitle>
+                        <DialogContent>
+                            <DialogContentText id="alert-dialog-description">
+                                Sau khi xóa tất cả các thông tin liên quan điều sẽ biến mất!
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => setOpenDelete(false)}>Đóng lại</Button>
+                            <Button onClick={() => deleteOneStudent()} autoFocus>
                                 Lưu lại
                             </Button>
                         </DialogActions>

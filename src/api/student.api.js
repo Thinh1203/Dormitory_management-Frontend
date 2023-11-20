@@ -58,6 +58,21 @@ export const getOne = async (id) => {
 
 }
 
+
+export const deleteOne = async (id) => {
+    try {
+        const token = localStorage.getItem("token");
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+        const result = await instance.delete(`/user/student/deleteOne/${id}`, { headers });
+        return result;
+    } catch (error) {
+        return error;
+    }
+
+}
+
 export const getAll = async (page, search) => {
     try {
         const token = localStorage.getItem("token");

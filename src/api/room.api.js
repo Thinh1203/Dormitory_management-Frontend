@@ -137,16 +137,3 @@ export const registerRoom = async (data) => {
   }
 }
 
-export const getAllListBuilding = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    const headers = {
-      'Authorization': `Bearer ${token}`
-    };
-    const result = await instance.get("/building/getAll", { headers });
-
-    return result;
-  } catch (error) {
-    return error;
-  }
-}

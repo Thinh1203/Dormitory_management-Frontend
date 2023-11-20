@@ -9,6 +9,11 @@ import Navigator from '../../components/admindashboard/Navigator';
 import PropTypes from 'prop-types';
 import { Button, Grid, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Tab, Tabs } from '@mui/material';
 import { a11yProps, CustomTabPanel } from '../../utils/createTheme';
+import { deleteBuilding, getAllBuilding, getArea, getOne, newBuilding, updateOne } from '../../api/Building.api';
+import { toast } from 'react-toastify';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 
 CustomTabPanel.propTypes = {
   children: PropTypes.node,
@@ -301,7 +306,16 @@ export default function MainDashboard() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
   const [value, setValue] = React.useState(0);
+  const [id, setId] = React.useState(0);
+  const [openDelete, setOpenDelete] = React.useState(false);
   const [open, setOpen] = React.useState(false);
+  const [openEdit, setOpenEdit] = React.useState(false);
+  const [area, setArea] = React.useState([]);
+  const [data, setData] = React.useState([]);
+  const [addBuilding, setAddBuilding] = React.useState({ area: "", areaCode: "" });
+  const [dataUpdate, setDataUpdate] = React.useState({});
+  const [filter, setFilter] = React.useState("");
+  const [refresh, setRefresh] = React.useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -310,12 +324,75 @@ export default function MainDashboard() {
   const handleClose = () => {
     setOpen(false);
   };
-  const handleChange = (event, newValue) => {
+
+
+  const deleteOneBuilding = async () => {
+    const res = await deleteBuilding(id);
+    if (res?.status === 200) {
+      setOpenDelete(false);
+      setId(0);
+      setRefresh(true);
+      return toast.success('Xóa thành công!', { position: "bottom-right", autoClose: 1000 });
+    } else {
+      return toast.error('Có lỗi xảy ra!', { position: "bottom-right", autoClose: 1000 });
+    }
+  };
+
+  const addNewBuilding = async () => {
+    const res = await newBuilding(addBuilding);
+    if (res?.status === 200) {
+      setOpen(false);
+      setRefresh(true);
+      return toast.success("Thêm mới thành công!", { position: "bottom-right", autoClose: 1000 });
+    } else {
+      return toast.error("Tòa nhà đã tồn tại!", { position: "bottom-right", autoClose: 1000 });
+    }
+  };
+
+  const handleChange = (newValue, area) => {
     setValue(newValue);
+    setFilter(area);
   };
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      const res = await getArea();
+      setArea(res.data)
+    };
+    fetchData();
+  }, []);
+
+  const fetchApiUpdateBuilding = async (id) => {
+    const res = await getOne(id);
+    setDataUpdate({
+      area: res.data?.area,
+      areaCode: res.data?.areaCode,
+    });
+    setOpenEdit(true);
+  }
+
+  const updateApi = async () => {
+    const res = await updateOne(id, dataUpdate);
+    if (res?.status === 200) {
+      setOpenEdit(false);
+      setId(0);
+      return toast.success('Cập nhật thành công!', { position: "bottom-right", autoClose: 1000 });
+    } else {
+      return toast.error('Mã tòa nhà đã tồn tại!', { position: "bottom-right", autoClose: 1000 });
+    }
+  };
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      const res = await getAllBuilding(filter);
+      setData(res.data)
+    };
+    fetchData();
+  }, [filter, id, refresh]);
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -341,9 +418,9 @@ export default function MainDashboard() {
         </Box>
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-              {building?.map((e, index) => (
-                <Tab label={`Khu ${e.khu}`} key={index} {...a11yProps(index)} />
+            <Tabs value={value} onChange={(event, newValue) => handleChange(newValue, area[newValue].area)} aria-label="basic tabs example">
+              {area?.map((e, index) => (
+                <Tab label={`Khu ${e.area}`} key={index} {...a11yProps(index)} />
               ))}
             </Tabs>
             <Box
@@ -365,12 +442,33 @@ export default function MainDashboard() {
               {/* // <React.Fragment key={element.id}> */}
               <CustomTabPanel value={value} index={index}>
                 <Grid container spacing={2}>
-                  {e.data?.map((element) => (
+                  {data?.list?.map((element) => (
                     <Grid item xs={12} sm={6} lg={3}>
-                      <div className='rounded-md p-2 bg-cyan-700 text-center text-white'>
-                        <Typography>Toa nha: {element.toaNha}</Typography>
-                        <Typography>So phong: {element.soPhong}</Typography>
-                        <Typography>Con trong: {element.phongTrong}</Typography>
+                      <div className='rounded-md p-2 bg-cyan-700 text-center text-white grid grid-cols-3'>
+                        <div className='col-span-2'>
+                          <Typography>Mã tòa nhà: {element.areaCode}</Typography>
+                          <Typography>Tổng số phòng: {element.room.length}</Typography>
+                          <Typography>Số phòng còn chỗ: {element.roomCountByArea}</Typography>
+                        </div>
+                        <div>
+                          <Button
+                            sx={{ marginBottom: 1 }}
+                            size='small'
+                            variant="contained"
+                            color="primary"
+                            onClick={() => { fetchApiUpdateBuilding(element.id); setId(element.id); }}
+                          >
+                            <EditIcon />
+                          </Button>
+                          <Button
+                            size='small'
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => { setOpenDelete(true); setId(element.id); }}
+                          >
+                            <DeleteIcon />
+                          </Button>
+                        </div>
                       </div>
                     </Grid>
                   ))}
@@ -382,30 +480,78 @@ export default function MainDashboard() {
           ))}
         </Box>
         <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>Thêm mới tòa nhà </DialogTitle>
+          <DialogTitle color='blue'>Thêm mới tòa nhà </DialogTitle>
           <DialogContent>
             <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Khu vực"
-              type="text"
+              sx={{ marginY: 1 }}
               fullWidth
-              variant="standard"
+              label="Khu Vực"
+              onChange={(e) => setAddBuilding({ ...addBuilding, area: e.target.value })}
+            // defaultValue={dataUpdate?.area}
             />
-             <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Mã tòa nhà"
-              type="text"
+            <TextField
+              sx={{ marginY: 1 }}
               fullWidth
-              variant="standard"
+              label="Mã số tòa nhà"
+              onChange={(e) => setAddBuilding({ ...addBuilding, areaCode: e.target.value })}
+            // defaultValue={dataUpdate?.areaCode}
             />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Hủy</Button>
-            <Button onClick={handleClose}>Thêm mới</Button>
+            <Button onClick={() => addNewBuilding()}>Thêm mới</Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={openEdit}
+          aria-labelledby="responsive-dialog-title"
+        >
+          <DialogTitle id="responsive-dialog-title" color='blue'>
+            Chỉnh sửa thông tin tòa nhà
+          </DialogTitle>
+          <DialogContent>
+            <TextField
+              sx={{ marginY: 1 }}
+              fullWidth
+              label="Khu Vực"
+              onChange={(e) => setDataUpdate({ ...dataUpdate, area: e.target.value })}
+              defaultValue={dataUpdate?.area}
+            />
+            <TextField
+              sx={{ marginY: 1 }}
+              fullWidth
+              label="Mã số tòa nhà"
+              onChange={(e) => setDataUpdate({ ...dataUpdate, areaCode: e.target.value })}
+              defaultValue={dataUpdate?.areaCode}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus onClick={() => setOpenEdit(false)}>
+              Đóng lại
+            </Button>
+            <Button autoFocus onClick={() => updateApi()}>
+              Lưu lại
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={openDelete}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title" color='red'>
+            {"Bạn có muốn xóa tòa nhà này?"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Sau khi xóa tất cả các thông tin liên quan điều sẽ biến mất!
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDelete(false)}>Đóng lại</Button>
+            <Button onClick={() => deleteOneBuilding()} autoFocus>
+              Lưu lại
+            </Button>
           </DialogActions>
         </Dialog>
       </Box>

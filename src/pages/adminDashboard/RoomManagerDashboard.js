@@ -20,10 +20,11 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import EditIcon from '@mui/icons-material/Edit';
-import { addRoom, deleteRoom, getAllListBuilding, getRoomInformation, getRoomList, updateInformationRoom } from '../../api/room.api';
+import { addRoom, deleteRoom, getRoomInformation, getRoomList, updateInformationRoom } from '../../api/room.api';
 import { toast } from 'react-toastify';
 import { actualCapacity, capacity, ListRoomType } from '../../utils/data';
 import { Link } from 'react-router-dom';
+import { getAreaCode } from '../../api/Building.api';
 
 
 
@@ -281,7 +282,7 @@ const RoomManagerDashboard = () => {
 
     React.useEffect(() => {
         const fetchApiListBuilding = async () => {
-            const res = await getAllListBuilding();
+            const res = await getAreaCode();
             setDataBuildingList(res.data);
         };
         fetchApiListBuilding();

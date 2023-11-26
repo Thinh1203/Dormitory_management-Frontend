@@ -273,7 +273,8 @@ const RoomDetailsInformation = () => {
                 </Box>
                 <div className='w-full bg-gray-200'>
                     <div className='bg-white mx-5 py-2 rounded-sm'>
-                        <div className='flex mt-2 mx-2 justify-end'>
+                        <div className='flex mt-2 mx-2 justify-between'>
+                            <h2 className='text-2xl font-semibold text-blue-700 mx-2'>Chi tiết phòng</h2>
                             <Button onClick={() => setOpen2(true)} variant='contained' color='success' size='small' sx={{ paddingY: 2, marginLeft: 2, maxHeight: 54 }}>
                                 Thêm sinh viên
                             </Button>

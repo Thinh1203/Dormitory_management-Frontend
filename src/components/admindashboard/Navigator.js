@@ -101,7 +101,7 @@ const Navigator = (props) => {
         </Box>
         <Box sx={{ bgcolor: '#101F33' }}>
           <ListItem disablePadding>
-            <ListItemButton sx={item} component={Link} to="/admin/dashboard">
+            <ListItemButton sx={item} component={Link} to="/admin/dashboard/danhsachquanly">
               <ListItemIcon>
                 <AdminPanelSettingsIcon />
               </ListItemIcon>
@@ -192,7 +192,7 @@ const Navigator = (props) => {
         </Collapse>
         <Box sx={{ bgcolor: '#101F33' }}>
           <ListItem disablePadding>
-            <ListItemButton sx={item} component={Link} to="/admin/dashboard">
+            <ListItemButton sx={item} component={Link} to="/admin/dashboard/tintuc-sukien">
               <ListItemIcon>
                 <NotificationsIcon />
               </ListItemIcon>

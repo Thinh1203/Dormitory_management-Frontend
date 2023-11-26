@@ -16,6 +16,8 @@ import UpdatePersonalInformation from "../pages/updatePersonalInformation";
 import RegisterFormManager from "../pages/adminDashboard/RegistrationFormManager";
 import RoomDetailsInformation from "../pages/adminDashboard/RoomDetailsInformation";
 import StudentManagerDashboard from "../pages/adminDashboard/StudentManagerDashboard";
+import AdminManagerDashboard from "../pages/adminDashboard/AdminManagerDashboard";
+import EventManager from "../pages/adminDashboard/EventManager";
 
 const routers = [
     { path: "/", component: LoginPage },
@@ -31,9 +33,11 @@ const routers = [
     { path: "/noiquy", component: RulePage },
     { path: "/tintuc-sukien", component: EventPage },
     { path: "/admin/dashboard", component: MainDashboard },
+    { path: "/admin/dashboard/tintuc-sukien", component: EventManager },
     { path: "/admin/dashboard/danhsachphong", component: RoomManagerDashboard },
     { path: "/admin/dashboard/danhsachphong/chitiet", component: RoomDetailsInformation },
     { path: "/admin/dashboard/danhsachsinhvien", component: StudentManagerDashboard },
+    { path: "/admin/dashboard/danhsachquanly", component: AdminManagerDashboard },
     { path: "/admin/dashboard/danhsachdondangky", component: RegisterFormManager },
     { path: "/*", component: ErrorPage }
 ];

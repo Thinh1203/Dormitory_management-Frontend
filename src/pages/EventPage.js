@@ -72,6 +72,7 @@ const EventPage = () => {
                                     </Grid>
                                 ))
                             }
+                            
                         </Grid>
                         <Stack spacing={2} padding={2} className='flex justify-center items-center'>
                             <Pagination

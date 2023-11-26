@@ -312,9 +312,9 @@ const RoomManagerDashboard = () => {
                 </Box>
                 <div className='w-full bg-gray-200'>
                     <div className='bg-white p-5 mx-5 rounded-md'>
-                        <h2>
+                        {/* <h2>
                             Bộ lọc
-                        </h2>
+                        </h2> */}
                         <div className='grid grid-cols-1 sm:grid-cols-2'>
                             <div className='flex my-2 mx-2'>
                                 <TextField

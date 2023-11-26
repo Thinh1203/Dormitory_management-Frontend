@@ -4,10 +4,12 @@ import Header from "../components/Header";
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getInformationStudentInRoom } from "../api/room.api";
+import { getConfig } from "../api/payment.api";
+import axios from "axios"; 
 
 const RoomInformationPage = () => {
     const [data, setData] = React.useState({});
-
+    const [paymentData, setPaymentData] = React.useState({});
     useEffect(() => {
         const fetchApi = async () => {
             const res = await getInformationStudentInRoom();
@@ -60,17 +62,23 @@ const RoomInformationPage = () => {
             "paymentTime": ""
         }
     ]
-    const room = {
-        "type": "Phòng 8 người ở",
-        "building": "B1",
-        "room": "B105",
-        "price": "150.000",
-        "registerDay": "01/01/2023",
-        "acceptDay": "02/01/2023",
-        "Fee": "1.350.000",
-        "status": false,
-        "month": 7
-    }
+    const handlePayment = async () => {
+        try {
+            const response = await axios.post("http://localhost:8088/api/payment/create", {
+                // Truyền các thông tin cần thiết cho API thanh toán
+                amount: 100, // Thay đổi giá trị tùy theo yêu cầu của bạn
+                orderDescription: "ThanhToanPhiPhong",
+                orderType: "ThanhToanPhiPhong",
+                language: "vn", // Hoặc bạn có thể đọc từ state hoặc props của component
+                // Thêm các thông tin khác tùy thuộc vào API của bạn
+              });
+              console.log(response.data.vnpUrl);
+              return
+              window.location.href = response.data.vnpUrl;
+        } catch (error) {
+            console.error("Error during payment:", error);
+        }
+    };
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -157,7 +165,20 @@ const RoomInformationPage = () => {
                                         Thanh toán
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        <Button variant="contained" disabled={(data === undefined ? true : (data?.room?.paymentStatus))}>
+                                        <Button
+                                            onClick={
+                                                () => {
+                                                    setPaymentData({
+                                                        amount: data?.room?.roomFee,
+                                                        orderDescription: "Thanh toán phí phòng",
+                                                        language: "vn"
+                                                    });
+                                                    handlePayment();
+                                                }
+                                            }
+                                            variant="contained"
+                                            disabled={(data === undefined ? true : (data?.room?.paymentStatus))}
+                                        >
                                             Thanh toán
                                         </Button>
                                     </td>

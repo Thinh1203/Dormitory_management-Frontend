@@ -1,62 +1,76 @@
 import instance from "../utils/instance";
-import 'react-toastify/dist/ReactToastify.css';
 
-export const checkForm = async () => {
+export const getAll = async () => {
     try {
         const token = localStorage.getItem("token");
         const headers = {
             'Authorization': `Bearer ${token}`
         };
-        const result = await instance.get('/registrationForm/checkForm', { headers });
+
+        const result = await instance.get('/user/manager/getAll', { headers });
         return result;
     } catch (error) {
         return error;
     }
+
 }
 
-export const checkStudentRoom = async () => {
+export const getOne = async (id) => {
     try {
         const token = localStorage.getItem("token");
         const headers = {
             'Authorization': `Bearer ${token}`
         };
-        const result = await instance.get('/roomStudent/checkRoomUser', { headers });
 
+        const result = await instance.get(`/user/manager/getOne/${id}`, { headers });
         return result;
     } catch (error) {
         return error;
     }
+
 }
 
-export const deleteRegistrationForm = async (id) => {
+export const updateOne = async (id, data) => {
     try {
         const token = localStorage.getItem("token");
         const headers = {
             'Authorization': `Bearer ${token}`
         };
-        const result = await instance.delete(`/registrationForm/delete/${id}`, { headers });
 
+        const result = await instance.patch(`/user/manager/update/${id}`, data, { headers });
         return result;
     } catch (error) {
         return error;
     }
+
 }
 
-export const getAllForm = async (page, filter, search) => {
+export const deleteOne = async (id) => {
     try {
         const token = localStorage.getItem("token");
         const headers = {
             'Authorization': `Bearer ${token}`
         };
-        const queryParams = {
-            page,
-            search,
-            filter
-        };
-        const result = await instance.get('/registrationForm/getAll', { params: queryParams, headers });
 
+        const result = await instance.delete(`/user/manager/deleteOne/${id}`, { headers });
         return result;
     } catch (error) {
         return error;
     }
+
+}
+
+export const addNewUser = async (data) => {
+    try {
+        const token = localStorage.getItem("token");
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+
+        const result = await instance.post('/user/manager/add/', data, { headers });
+        return result;
+    } catch (error) {
+        return error;
+    }
+
 }

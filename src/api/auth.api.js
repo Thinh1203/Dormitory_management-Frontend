@@ -21,13 +21,11 @@ export const auth = async (user, navigate) => {
 
 export const changePassword = async (data) => {
     try {
-        console.log(data);
         const token = localStorage.getItem("token");
         const headers = {
             'Authorization': `Bearer ${token}`
         };
         const result = await instance.patch("/auth/changePassword", data, { headers });
-        console.log(result);
         return result;
     } catch (error) {
         return error;

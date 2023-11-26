@@ -4,7 +4,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import CssBaseline from '@mui/material/CssBaseline';
 import Navigator from '../../components/admindashboard/Navigator';
 import PropTypes from 'prop-types';
-import { Button, TextField, MenuItem, Dialog, DialogActions, Box, Paper, DialogContent, DialogContentText, DialogTitle, Divider, Stack, Pagination } from '@mui/material';
+import { Button, TextField, MenuItem, Dialog, DialogActions, Box, Paper, DialogContent, DialogContentText, DialogTitle, Divider, Stack, Pagination, Tooltip } from '@mui/material';
 import { CustomTabPanel } from '../../utils/createTheme';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -12,11 +12,22 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+import { getAllForm } from '../../api/registrationForm.api';
 
 const names = [
-    'Đã duyệt',
-    'Chờ duyệt',
-    'Đã từ chối'
+    {
+        id: 0,
+        title: 'Chờ duyệt'
+    },
+    {
+        id: 1,
+        title: 'Đã duyệt'
+    },
+    {
+        id: 2,
+        title: 'Đã từ chối'
+    }
 ];
 
 
@@ -189,18 +200,26 @@ const drawerWidth = 256;
 const RegisterFormManager = () => {
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
-    const [personName, setPersonName] = React.useState('');
-    const [openDelete, setOpenDelete] = React.useState(false);
-    const [openEdit, setOpenEdit] = React.useState(false);
-    const [openAddRoom, setOpenAddRoom] = React.useState(false);
-    const [openDetail, setOpenDetail] = React.useState(false);
-
-    const handleChange = (event) => {
-        setPersonName(event.target.value);
-    };
+    const [search, setSearch] = React.useState("");
+    const [filter, setFilter] = React.useState(3);
+    const [currentPage, setCurrentPage] = React.useState(1);
+    const [data, setData] = React.useState([]);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
+    };
+
+    React.useEffect(() => {
+        const fetchData = async () => {
+            const res = await getAllForm(currentPage, filter, search);
+            setData(res.data);
+            console.log(res.data);
+        };
+        fetchData();
+    }, [currentPage, filter, search]);
+
+    const handleChangePage = (event, newPage) => {
+        setCurrentPage(newPage);
     };
 
     return (
@@ -227,39 +246,39 @@ const RegisterFormManager = () => {
                 </Box>
                 <div className='w-full bg-gray-200'>
                     <div className='bg-white p-5 mt-5 mx-5 rounded-t-md'>
-                        <h2>
+                        {/* <h2>
                             Bộ lọc
-                        </h2>
+                        </h2> */}
                         <div className='grid grid-cols-1 sm:grid-cols-2 mt-2'>
                             <div className='flex my-2'>
                                 <TextField
                                     select
-                                    label="Chọn trạng thái đơn"
-                                    value={personName}
-                                    onChange={handleChange}
+                                    label="Trạng thái đơn"
+                                    value={(filter !== 3) ? filter : ''}
                                     sx={{ maxWidth: 300 }}
                                     fullWidth
+                                    onChange={(e) => setFilter(e.target.value)}
                                 >
-                                    {names.map((name) => (
-                                        <MenuItem key={name} value={name}>
-                                            {name}
+                                    {names.map((e) => (
+                                        <MenuItem key={e.id} value={e.id} >
+                                            {e.title}
                                         </MenuItem>
                                     ))}
                                 </TextField>
 
-                                <Button variant='contained' size='large' sx={{ paddingY: 2, marginLeft: 2, maxHeight: 54 }}>
-                                    Lọc
-                                </Button>
+                                {/* <Tooltip title="Bỏ lọc" placement="top" >
+                                    <Button variant='contained' size='large' sx={{ paddingY: 2, marginLeft: 1, maxHeight: 54 }}>
+                                        <FilterAltOffIcon />
+                                    </Button>
+                                </Tooltip> */}
                             </div>
-                            <div className='flex mt-2 mx-2'>
+                            <div className='flex mt-2 mx-2 justify-end'>
                                 <TextField
                                     label="Nhập tên sinh viên, mã số"
                                     fullWidth
                                     sx={{ maxWidth: 300 }}
+                                    onChange={(e) => setSearch(e.target.value)}
                                 />
-                                {/* <Button onClick={() => setOpenAddRoom(true)} variant='outlined' color='success' size='small' sx={{ paddingY: 2, marginLeft: 2, maxHeight: 54 }}>
-                                    Thêm phòng
-                                </Button> */}
                             </div>
                         </div>
 
@@ -269,38 +288,86 @@ const RegisterFormManager = () => {
                         <Divider />
                     </div>
                     <div className=' bg-white mx-5'>
-
                         <TableContainer component={Paper}>
                             <Table sx={{ minWidth: 650 }} aria-label="caption table">
-                                <caption>A basic table example with a caption</caption>
+                                <caption>Danh sách đơn đăng ký</caption>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell align="left">HỌ VÀ TÊN</TableCell>
-                                        <TableCell align="left">MÃ SỐ SINH VIÊN</TableCell>
-                                        <TableCell align="left">SỐ ĐIỆN THOẠI</TableCell>
-                                        <TableCell align="left">EMAIL</TableCell>
-                                        <TableCell align="left">GIỚI TÍNH</TableCell>
-                                        <TableCell align="left">TRẠNG THÁI ĐƠN</TableCell>
-                                        <TableCell align="left">ACTIONS</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Họ và tên</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Mã số sinh viên</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Giới tính</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Mã phòng</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Mã khu vực</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Phòng nam/nữ</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Còn trống</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Trạng thái đơn</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Hành động</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {rows.map((row) => (
-                                        <TableRow key={row.name}>                               
-                                            <TableCell align="left">{row.calories}</TableCell>
-                                            <TableCell align="left">{row.fat}</TableCell>
-                                            <TableCell align="left">{row.carbs}</TableCell>
-                                            <TableCell align="left">{row.protein}</TableCell>
-                                            <TableCell align="left">{row.protein}</TableCell>
-                                            <TableCell align="left">{row.protein}</TableCell>
-                                            <TableCell align="left">{row.protein}</TableCell>
+                                    {data ? data?.data?.map((e) => (
+                                        <TableRow key={e.id}>
+                                            <TableCell align="center" className='border-r-2'>{e.student.fullName}</TableCell>
+                                            <TableCell align="center" className='border-r-2'>{e.student.mssv}</TableCell>
+                                            <TableCell align="center" className='border-r-2'>{e.student.gender}</TableCell>
+                                            <TableCell align="center" className='border-r-2'>{e.room.roomCode}</TableCell>
+                                            <TableCell align="center" className='border-r-2'>{e.room.building.areaCode}</TableCell>
+                                            <TableCell align="center" className='border-r-2'>{e.room.roomMale}</TableCell>
+                                            <TableCell align="center" className='border-r-2'>{e.room.wereThere}</TableCell>
+                                            <TableCell align="center" className='border-r-2'>
+                                                {e.registrationStatus === 0
+                                                    ? 'Chưa duyệt'
+                                                    : e.registrationStatus === 2
+                                                        ? 'Đã từ chối'
+                                                        : 'Đã duyệt'
+                                                } </TableCell>
+                                            <TableCell align="left" className='border-r-2'>
+                                                <Button
+                                                    variant='contained'
+                                                    color='success'
+                                                    size='small'
+                                                    sx={{ marginX: 1 }}
+                                                    disabled={(e.registrationStatus === 1 || e.registrationStatus === 2) && true}
+                                                >
+                                                    Duyệt
+                                                </Button>
+                                                <Button 
+                                                variant='contained' 
+                                                color='error' 
+                                                size='small'
+                                                disabled={(e.registrationStatus === 1 || e.registrationStatus === 2) && true}
+                                                >
+                                                    Từ chối
+                                                </Button>
+                                                <Button
+                                                    variant='contained'
+                                                    color='primary'
+                                                    size='small'
+                                                    sx={{ marginX: 1 }}
+                                                    
+                                                >
+                                                    Chi tiết
+                                                </Button>
+                                            </TableCell>
                                         </TableRow>
-                                    ))}
+                                    )) :
+                                        (
+                                            <TableRow>
+                                                <TableCell colSpan={12} align="center" component="th" scope="row" style={{ padding: "4px", color: "red", fontSize: "20px" }}>
+                                                    Không có dữ liệu
+                                                </TableCell>
+                                            </TableRow>
+                                        )
+                                    }
                                 </TableBody>
                             </Table>
                         </TableContainer>
                         <Stack spacing={2} padding={2} className='flex justify-center items-center'>
-                            <Pagination count={10} color="primary" />
+                            <Pagination count={Math.ceil(data?.total / data?.data_per_page)}
+                                page={currentPage}
+                                // rowsPerPage={data?.data_per_page}
+                                color="primary"
+                                onChange={handleChangePage} />
                         </Stack>
                     </div>
                 </div>

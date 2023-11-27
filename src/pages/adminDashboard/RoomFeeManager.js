@@ -15,6 +15,7 @@ import TableRow from '@mui/material/TableRow';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import { getAllForm, getOneDetail, updateOne } from '../../api/registrationForm.api';
 import { toast } from 'react-toastify';
+import { getAllRoomStudent } from '../../api/room.api';
 
 const names = [
     {
@@ -198,47 +199,22 @@ const drawerWidth = 256;
 
 
 
-const RegisterFormManager = () => {
+const RoomFeeManager = () => {
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
     const [search, setSearch] = React.useState("");
-    const [filter, setFilter] = React.useState(3);
+    const [filter, setFilter] = React.useState('');
     const [currentPage, setCurrentPage] = React.useState(1);
     const [data, setData] = React.useState([]);
     const [detailForm, setDetailForm] = React.useState({});
     const [open, setOpen] = React.useState(false);
-    const [id, setId] = React.useState(0);
+
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
 
 
-    const fetchInformationForm = async (id) => {
-        const res = await getOneDetail(id);
-
-        setDetailForm({
-            createAt: res.data?.registrationForm?.createdAt,
-            updateAt: res.data?.registrationForm?.updatedAt,
-            registrationTime: res.data?.registrationForm?.registrationTime,
-            wish: res.data?.registrationForm?.wish,
-            areaCode: res.data?.room?.building?.areaCode,
-            roomCode: res.data?.room?.roomCode,
-            status: res.data?.room?.status,
-            fee: res.data?.room?.price,
-            semester: res.data?.schoolyear?.semester,
-            year: res.data?.schoolyear?.year
-        });
-        setOpen(true);
-    }
-
-    const updateStatusForm = async (id, status) => {
-        const res = await updateOne(id, status);
-        if (res?.status === 200) {
-            setId(id);
-            return toast.success('Đã duyệt đơn!', { position: "bottom-right", autoClose: 1000 });
-        }
-    }
 
     const handleChangePage = (event, newPage) => {
         setCurrentPage(newPage);
@@ -246,11 +222,12 @@ const RegisterFormManager = () => {
 
     React.useEffect(() => {
         const fetchData = async () => {
-            const res = await getAllForm(currentPage, filter, search);
+            const res = await getAllRoomStudent(currentPage, filter, search);
             setData(res.data);
+            console.log(res.data);
         };
         fetchData();
-    }, [currentPage, filter, search, id]);
+    }, [currentPage, filter, search]);
     return (
         <ThemeProvider theme={theme}>
             <Box sx={{ display: 'flex', minHeight: '100vh' }}>
@@ -283,20 +260,21 @@ const RegisterFormManager = () => {
                                 <TextField
                                     select
                                     label="Trạng thái đơn"
-                                    value={(filter !== 3) ? filter : ''}
+                                    value={(filter === '') ? '' : filter}
                                     sx={{ maxWidth: 300 }}
                                     fullWidth
                                     onChange={(e) => setFilter(e.target.value)}
                                 >
-                                    {names.map((e) => (
-                                        <MenuItem key={e.id} value={e.id} >
-                                            {e.title}
-                                        </MenuItem>
-                                    ))}
+                                    <MenuItem value={true} >
+                                        Đã thanh toán
+                                    </MenuItem>
+                                    <MenuItem value={false} >
+                                        Chưa thanh toán
+                                    </MenuItem>
                                 </TextField>
 
                                 <Tooltip title="Bỏ lọc" placement="top" >
-                                    <Button onClick={() => { setFilter(3); setCurrentPage(1); }} variant='contained' size='large' sx={{ paddingY: 2, marginLeft: 1, maxHeight: 54 }}>
+                                    <Button onClick={() => { setFilter(''); setCurrentPage(1); }} variant='contained' size='large' sx={{ paddingY: 2, marginLeft: 1, maxHeight: 54 }}>
                                         <FilterAltOffIcon />
                                     </Button>
                                 </Tooltip>
@@ -319,7 +297,13 @@ const RegisterFormManager = () => {
                     <div className=' bg-white mx-5'>
                         <TableContainer component={Paper}>
                             <Table sx={{ minWidth: 650 }} aria-label="caption table">
-                                <caption>Danh sách đơn đăng ký</caption>
+                                <caption>
+                                    Tổng số tiền cần thu: {data?.totalRoomFee ? data.totalRoomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "N/A"}
+                                    &emsp;&emsp;&emsp;&emsp;
+                                    Số tiền đã thu: {data?.totalPaidRoomFee ? data.totalPaidRoomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "N/A"}
+                                    &emsp;&emsp;&emsp;&emsp;
+                                    Số tiền cần thu: {(data?.totalPaidRoomFee) ? (data.totalRoomFee - data.totalPaidRoomFee).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "N/A"}
+                                </caption>
                                 <TableHead>
                                     <TableRow>
                                         <TableCell align="center" className='border-r-2'>Họ và tên</TableCell>
@@ -328,9 +312,8 @@ const RegisterFormManager = () => {
                                         <TableCell align="center" className='border-r-2'>Mã phòng</TableCell>
                                         <TableCell align="center" className='border-r-2'>Mã khu vực</TableCell>
                                         <TableCell align="center" className='border-r-2'>Phòng nam/nữ</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Còn trống</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Trạng thái đơn</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Hành động</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Phí phòng</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Trạng thái</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -342,44 +325,12 @@ const RegisterFormManager = () => {
                                             <TableCell align="center" className='border-r-2'>{e.room.roomCode}</TableCell>
                                             <TableCell align="center" className='border-r-2'>{e.room.building.areaCode}</TableCell>
                                             <TableCell align="center" className='border-r-2'>{e.room.roomMale}</TableCell>
-                                            <TableCell align="center" className='border-r-2'>{e.room.empty}</TableCell>
+                                            <TableCell align="center" className='border-r-2'>{e.roomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}đ</TableCell>
                                             <TableCell align="center" className='border-r-2'>
-                                                {e.registrationStatus === 0
-                                                    ? (<span className='text-blue-600 font-medium'>Chưa duyệt</span>)
-                                                    : e.registrationStatus === 2
-                                                        ? (<span className='text-red-600 font-medium'>Đã từ chối</span>)
-                                                        : (<span className='text-green-600 font-medium'>Đã duyệt</span>)
+                                                {e.paymentStatus
+                                                    ? (<span className='text-green-600 font-medium'>Đã thanh toán</span>)
+                                                    : (<span className='text-red-600 font-medium'>Chưa thanh toán</span>)
                                                 } </TableCell>
-                                            <TableCell align="left" className='border-r-2'>
-                                                <Button
-                                                    variant='contained'
-                                                    color='success'
-                                                    size='small'
-                                                    sx={{ marginX: 1 }}
-                                                    disabled={(e.registrationStatus === 1 || e.registrationStatus === 2) && true}
-                                                    onClick={() => updateStatusForm(e?.id, { registrationStatus: 1 })}
-                                                >
-                                                    Duyệt
-                                                </Button>
-                                                <Button
-                                                    variant='contained'
-                                                    color='error'
-                                                    size='small'
-                                                    disabled={(e.registrationStatus === 1 || e.registrationStatus === 2) && true}
-                                                    onClick={() => updateStatusForm(e?.id, { registrationStatus: 2 })}
-                                                >
-                                                    Từ chối
-                                                </Button>
-                                                <Button
-                                                    variant='contained'
-                                                    color='primary'
-                                                    size='small'
-                                                    sx={{ marginX: 1 }}
-                                                    onClick={() => fetchInformationForm(e.id)}
-                                                >
-                                                    Chi tiết
-                                                </Button>
-                                            </TableCell>
                                         </TableRow>
                                     )) :
                                         (
@@ -400,101 +351,8 @@ const RegisterFormManager = () => {
                                 color="primary"
                                 onChange={handleChangePage} />
                         </Stack>
-                        <Dialog open={open} >
-                            <DialogTitle color="blue">Chi tiết đơn đăng ký</DialogTitle>
-                            <DialogContent>
-                                <div className='grid grid-cols-2 gap-2'>
-                                    <div className='my-2'>
-                                        <TextField
-                                            sx={{ marginBottom: 1 }}
-                                            fullWidth
-                                            label="Mã khu vực"
-                                            defaultValue={detailForm?.areaCode}
-                                        />
-                                        <TextField
-                                            sx={{ marginBottom: 1 }}
-                                            fullWidth
-                                            label="Mã phòng"
-                                            defaultValue={detailForm?.roomCode}
-                                        />
-                                        <TextField
-                                            sx={{ marginBottom: 1 }}
-                                            fullWidth
-                                            label="Trạng thái phòng"
-                                            defaultValue={detailForm?.status ? 'Đang sử dụng' : 'Bảo trì'}
-                                        />
-                                        <TextField
-                                            sx={{ marginBottom: 1 }}
-                                            fullWidth
-                                            label="Thời gian đăng ký"
-                                            defaultValue={new Date(detailForm?.createAt).toLocaleString('en-GB', {
-                                                hour: 'numeric',
-                                                minute: 'numeric',
-                                                second: 'numeric',
-                                                day: 'numeric',
-                                                month: 'numeric',
-                                                year: 'numeric',
-                                            })}
-                                        />
-                                        <TextField
-                                            sx={{ marginBottom: 1 }}
-                                            fullWidth
-                                            label="Năm học"
-                                            defaultValue={detailForm?.year}
-                                        />
-                                    </div>
-                                    <div className='my-2'>
-                                        <TextField
-                                            sx={{ marginBottom: 1 }}
-                                            fullWidth
-                                            label="Thời gian duyệt"
-                                            defaultValue={
-                                                (detailForm?.registrationStatus === 0)
-                                                    ? 'Chưa duyệt' :
-                                                    new Date(detailForm?.updateAt).toLocaleString('en-GB', {
-                                                        hour: 'numeric',
-                                                        minute: 'numeric',
-                                                        second: 'numeric',
-                                                        day: 'numeric',
-                                                        month: 'numeric',
-                                                        year: 'numeric',
-                                                    })}
-                                        />
-                                        <TextField
-                                            sx={{ marginBottom: 1 }}
-                                            fullWidth
-                                            label="Nguyện vọng"
-                                            defaultValue={(detailForm?.wish !== null) ? detailForm?.wish : ''}
-                                        />
-                                        <TextField
-                                            sx={{ marginBottom: 1 }}
-                                            fullWidth
-                                            label="Thời gian ở / tháng"
-                                            defaultValue={detailForm?.registrationTime}
-                                        />
-                                        <TextField
-                                            sx={{ marginBottom: 1 }}
-                                            fullWidth
-                                            label="Tổng phí phòng"
-                                            defaultValue={(detailForm?.fee * detailForm?.registrationTime).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + 'đ'}
-                                        />
-                                        <TextField
-                                            sx={{ marginBottom: 1 }}
-                                            fullWidth
-                                            label="Học kỳ"
-                                            defaultValue={detailForm?.semester}
-                                        />
-                                    </div>
-                                </div>
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={() => setOpen(false)}>Đóng lại</Button>
-                            </DialogActions>
-                        </Dialog>
                     </div>
                 </div>
-
-
             </Box>
         </ThemeProvider>
 
@@ -502,4 +360,4 @@ const RegisterFormManager = () => {
 }
 
 
-export default RegisterFormManager;
+export default RoomFeeManager;

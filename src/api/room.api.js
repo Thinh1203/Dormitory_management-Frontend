@@ -1,5 +1,4 @@
 import instance from "../utils/instance";
-import 'react-toastify/dist/ReactToastify.css';
 
 
 export const getRoomList = async (page, search, filter) => {
@@ -96,6 +95,63 @@ export const getAllSchoolYear = async () => {
   }
 }
 
+
+export const addNewSchoolYear = async (data) => {
+  try {
+
+    const token = localStorage.getItem("token");
+    const headers = {
+      'Authorization': `Bearer ${token}`
+    };
+    const result = await instance.post("/shoolYear/add", data, { headers });
+    return result;
+  } catch (error) {
+    return error;
+  }
+}
+
+export const deleteOneYear = async (id) => {
+  try {
+
+    const token = localStorage.getItem("token");
+    const headers = {
+      'Authorization': `Bearer ${token}`
+    };
+    const result = await instance.delete(`/shoolYear/delete/${id}`, { headers });
+    return result;
+  } catch (error) {
+    return error;
+  }
+}
+
+export const getOneYear = async (id) => {
+  try {
+
+    const token = localStorage.getItem("token");
+    const headers = {
+      'Authorization': `Bearer ${token}`
+    };
+    const result = await instance.get(`/shoolYear/getOne/${id}`, { headers });
+    return result;
+  } catch (error) {
+    return error;
+  }
+}
+
+export const updateOneYear = async (id, data) => {
+  try {
+
+    const token = localStorage.getItem("token");
+    const headers = {
+      'Authorization': `Bearer ${token}`
+    };
+    const result = await instance.patch(`/shoolYear/update/${id}`, data, { headers });
+    return result;
+  } catch (error) {
+    return error;
+  }
+}
+
 export const getInformationStudentInRoom = async () => {
   try {
     const token = localStorage.getItem("token");
@@ -123,6 +179,35 @@ export const getInformationDetailsRoom = async (id) => {
   }
 }
 
+export const deleteOne = async (id) => {
+  try {
+    const token = localStorage.getItem("token");
+    const headers = {
+      'Authorization': `Bearer ${token}`
+    };
+    const result = await instance.delete(`/roomStudent/delete/${id}`, { headers });
+    return result;
+  } catch (error) {
+    return error;
+  }
+}
+
+
+export const addUser = async (data) => {
+  try {
+
+    const token = localStorage.getItem("token");
+    const headers = {
+      'Authorization': `Bearer ${token}`
+    };
+    const result = await instance.post('/roomStudent/addNewStudent', data, { headers });
+    return result;
+  } catch (error) {
+    return error;
+  }
+}
+
+
 export const registerRoom = async (data) => {
   try {
     const token = localStorage.getItem("token");
@@ -137,3 +222,22 @@ export const registerRoom = async (data) => {
   }
 }
 
+export const getAllRoomStudent = async (page, filter, search) => {
+  try {
+    const token = localStorage.getItem("token");
+    const headers = {
+      'Authorization': `Bearer ${token}`
+    };
+
+    const queryParams = {
+      page,
+      search,
+      filter
+    };
+    const result = await instance.get("/roomStudent/getAll", { params: queryParams, headers });
+
+    return result;
+  } catch (error) {
+    return error;
+  }
+}

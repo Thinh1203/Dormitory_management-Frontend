@@ -29,6 +29,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const Navigator = (props) => {
   const { ...other } = props;
@@ -177,11 +179,11 @@ const Navigator = (props) => {
                 </ListItemIcon>
                 <ListItemText>Quản lý điện nước</ListItemText>
               </ListItemButton>
-            </ListItem>
+            </ListItem> 
           </Box>
           <Box sx={{ bgcolor: '#1D2C40' }}>
             <ListItem disablePadding sx={{ marginLeft: 1 }}>
-              <ListItemButton sx={item} component={Link} to="/admin/dashboard">
+              <ListItemButton sx={item} component={Link} to="/admin/dashboard/phiphongo">
                 <ListItemIcon>
                   <PriceCheckIcon />
                 </ListItemIcon>
@@ -200,17 +202,27 @@ const Navigator = (props) => {
             </ListItemButton>
           </ListItem>
         </Box>
-        <Divider />
         <Box sx={{ bgcolor: '#101F33' }}>
           <ListItem disablePadding>
-            <ListItemButton sx={item} component={Link} to="/admin/dashboard">
+            <ListItemButton sx={item} component={Link} to="/admin/dashboard/thietbi">
               <ListItemIcon>
-                <LockPersonIcon />
+                <SettingsIcon />
               </ListItemIcon>
-              <ListItemText>Thông tin cá nhân</ListItemText>
+              <ListItemText>Quản lý thiết bị</ListItemText>
             </ListItemButton>
           </ListItem>
         </Box>
+        <Box sx={{ bgcolor: '#101F33' }}>
+          <ListItem disablePadding>
+            <ListItemButton sx={item} component={Link} to="/admin/dashboard/namhoc-hocky">
+              <ListItemIcon>
+                <CalendarMonthIcon />
+              </ListItemIcon>
+              <ListItemText>Năm học - học kỳ</ListItemText>
+            </ListItemButton>
+          </ListItem>
+        </Box>
+        <Divider />
         <Box sx={{ bgcolor: '#101F33' }}>
           <ListItem disablePadding onClick={handleLogout}>
             <ListItemButton sx={item} >

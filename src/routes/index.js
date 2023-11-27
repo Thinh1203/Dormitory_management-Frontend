@@ -18,6 +18,9 @@ import RoomDetailsInformation from "../pages/adminDashboard/RoomDetailsInformati
 import StudentManagerDashboard from "../pages/adminDashboard/StudentManagerDashboard";
 import AdminManagerDashboard from "../pages/adminDashboard/AdminManagerDashboard";
 import EventManager from "../pages/adminDashboard/EventManager";
+import SchoolYearManager from "../pages/adminDashboard/SchoolYearManager";
+import DeviceManager from "../pages/adminDashboard/DeviceManager";
+import RoomFeeManager from "../pages/adminDashboard/RoomFeeManager";
 
 const routers = [
     { path: "/", component: LoginPage },
@@ -33,6 +36,9 @@ const routers = [
     { path: "/noiquy", component: RulePage },
     { path: "/tintuc-sukien", component: EventPage },
     { path: "/admin/dashboard", component: MainDashboard },
+    { path: "/admin/dashboard/namhoc-hocky", component: SchoolYearManager },
+    { path: "/admin/dashboard/thietbi", component: DeviceManager },
+    { path: "/admin/dashboard/phiphongo", component: RoomFeeManager },
     { path: "/admin/dashboard/tintuc-sukien", component: EventManager },
     { path: "/admin/dashboard/danhsachphong", component: RoomManagerDashboard },
     { path: "/admin/dashboard/danhsachphong/chitiet", component: RoomDetailsInformation },

@@ -392,8 +392,6 @@ const HomePage = () => {
                                                 <Select
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
-                                                    // value={formRegister?.schoolYearId > 0 ? formRegister?.schoolYearId : "Năm học - học kỳ"}
-                                                    // label="Năm học - học kỳ"
                                                     onChange={(e) => setFormRegister({ ...formRegister, schoolYearId: e.target.value })}
                                                     MenuProps={MenuProps}
                                                 >

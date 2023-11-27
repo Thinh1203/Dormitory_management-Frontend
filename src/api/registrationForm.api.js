@@ -60,3 +60,31 @@ export const getAllForm = async (page, filter, search) => {
         return error;
     }
 }
+
+export const getOneDetail = async (id) => {
+    try {
+        const token = localStorage.getItem("token");
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+
+        const result = await instance.get(`/registrationForm/getOne/${id}`, { headers });
+
+        return result;
+    } catch (error) {
+        return error;
+    }
+}
+
+export const updateOne = async (id, data) => {
+    try {
+      const token = localStorage.getItem("token");
+      const headers = {
+        'Authorization': `Bearer ${token}`
+      };
+      const result = await instance.patch(`/registrationForm/update/${id}`, data, { headers });
+      return result;
+    } catch (error) {
+      return error;
+    }
+  }

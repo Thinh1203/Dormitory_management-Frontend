@@ -442,8 +442,8 @@ export default function MainDashboard() {
               {/* // <React.Fragment key={element.id}> */}
               <CustomTabPanel value={value} index={index}>
                 <Grid container spacing={2}>
-                  {data?.list?.map((element) => (
-                    <Grid item xs={12} sm={6} lg={3}>
+                  {data?.list?.map((element, index) => (
+                    <Grid item xs={12} sm={6} lg={3} key={index}>
                       <div className='rounded-md p-2 bg-cyan-700 text-center text-white grid grid-cols-3'>
                         <div className='col-span-2'>
                           <Typography>Mã tòa nhà: {element.areaCode}</Typography>

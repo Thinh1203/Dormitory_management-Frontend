@@ -92,6 +92,22 @@ export const getAll = async (page, search) => {
 
 }
 
+export const getList = async () => {
+    try {
+        const token = localStorage.getItem("token");
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+
+
+        const result = await instance.get('/user/student/getList', { headers });
+        return result;
+    } catch (error) {
+        return error;
+    }
+
+}
+
 export const updateInformation = async (id, data) => {
     try {
         const token = localStorage.getItem("token");

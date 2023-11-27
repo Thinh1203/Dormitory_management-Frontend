@@ -29,6 +29,7 @@ import { getAreaCode } from '../../api/Building.api';
 
 
 
+
 CustomTabPanel.propTypes = {
     children: PropTypes.node,
     index: PropTypes.number.isRequired,
@@ -199,6 +200,7 @@ const RoomManagerDashboard = () => {
     const [addNewRoom, setAddNewRoom] = React.useState({ roomCode: "", roomType: "", capacity: 0, actualCapacity: 0, roomMale: "", kitchen: "", price: 0, buildingId: 0 });
     const [updateRoom, setUpdateRoom] = React.useState({ roomCode: "", roomType: "", capacity: 0, actualCapacity: 0, roomMale: "", kitchen: "", price: 0, status: "" });
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
+    
 
     const fetchApiListRoom = async () => {
         const res = await getRoomList(currentPage, search, filter);
@@ -287,6 +289,8 @@ const RoomManagerDashboard = () => {
         };
         fetchApiListBuilding();
     }, []);
+
+ 
 
     return (
         <ThemeProvider theme={theme}>

@@ -6,6 +6,10 @@ import Box from '@mui/material/Box';
 import Navigator from '../../components/admindashboard/Navigator';
 import PropTypes from 'prop-types';
 import { TextField, Divider, Slide } from '@mui/material';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 import { CustomTabPanel } from '../../utils/createTheme';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
@@ -22,7 +26,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { useLocation } from 'react-router-dom';
-import { getInformationDetailsRoom } from '../../api/room.api';
+import { addUser, deleteOne, getAllSchoolYear, getInformationDetailsRoom } from '../../api/room.api';
 import MoreIcon from '@mui/icons-material/More';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -31,25 +35,10 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useTheme } from '@mui/material/styles';
 import Autocomplete from '@mui/material/Autocomplete';
+import { getList } from '../../api/student.api';
+import { toast } from 'react-toastify';
 
 
-const options = [
-    { label: 'Option 1', value: 1 },
-    { label: 'Option 2', value: 2 },
-    { label: 'Option 3', value: 3 },
-    { label: 'Option 1', value: 1 },
-    { label: 'Option 2', value: 2 },
-    { label: 'Option 3', value: 3 },
-    { label: 'Option 1', value: 1 },
-    { label: 'Option 2', value: 2 },
-    { label: 'Option 3', value: 3 },
-    { label: 'Option 1', value: 1 },
-    { label: 'Option 2', value: 2 },
-    { label: 'Option 3', value: 3 },
-    { label: 'Option 1', value: 1 },
-    { label: 'Option 2', value: 2 },
-    { label: 'Option 3', value: 3 },
-];
 
 CustomTabPanel.propTypes = {
     children: PropTypes.node,
@@ -212,18 +201,49 @@ const RoomDetailsInformation = () => {
     const [informationStudent, setInformationStudent] = React.useState({});
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
     const { state } = useLocation();
+    const [id, setId] = React.useState(0);
     const [open, setOpen] = React.useState(false);
     const [open2, setOpen2] = React.useState(false);
-    const [addStudent, setAddStudent] = React.useState(false);
+    const [listData, setListData] = React.useState([{}]);
+    const [openDelete, setOpenDelete] = React.useState(false);
+    const [schoolYear, setSchoolYear] = React.useState([]);
 
+    const [addNewStudent, setAddNewStudent] = React.useState({
+        paymentStatus: '',
+        roomId: state.id,
+        studentId: 0,
+        schoolyearId: 0,
+        time: 0
+    });
 
     const DetailsInformation = async (data) => {
         setOpen(true);
         setInformationStudent(data);
     }
 
+    const handleAdd = async () => {
+        if (addNewStudent.roomId === 0 || addNewStudent.studentId === 0 || addNewStudent.schoolyearId === 0 || addNewStudent.time === 0)
+            return toast.error('Vui lòng điền đủ thông tin!', { position: "bottom-right", autoClose: 1000 });
+        const res = await addUser(addNewStudent);
+        if (res?.status === 200) {
+            setOpen2(false);
+            return toast.success('Thêm thành công!', { position: "bottom-right", autoClose: 1000 });
+        }
+    };
+
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
+    };
+
+    const deleteOneStudent = async () => {
+        const res = await deleteOne(id);
+        if (res?.status === 200) {
+            setOpenDelete(false);
+            setId(0);
+            return toast.success('Xóa thành công!', { position: "bottom-right", autoClose: 1000 });
+        } else {
+            return toast.error('Có lỗi xảy ra!', { position: "bottom-right", autoClose: 1000 });
+        }
     };
 
     React.useEffect(() => {
@@ -235,20 +255,24 @@ const RoomDetailsInformation = () => {
             }
         };
         fetchApi();
+    }, [open2, openDelete]);
+
+    React.useEffect(() => {
+        const getSchoolYear = async () => {
+            const res = await getAllSchoolYear();
+            setSchoolYear(res.data);
+        }
+        getSchoolYear();
     }, []);
 
-    // React.useEffect(() => {
-    //     const fetchStudent = async () => {
-    //         const res = await getInformationDetailsRoom(state.id);
-    //         if (res?.status && res?.status === 200) {
-    //             setCheck(true);
-    //             setData(res.data);
-    //         }
-    //     };
-    //     fetchStudent();
-    // }, []);
 
-
+    React.useEffect(() => {
+        const getAllList = async () => {
+            const res = await getList();
+            setListData(res.data);
+        };
+        getAllList();
+    }, []);
     return (
         <ThemeProvider theme={theme}>
             <Box sx={{ display: 'flex', minHeight: '100vh' }}>
@@ -283,24 +307,69 @@ const RoomDetailsInformation = () => {
                                 aria-labelledby="alert-dialog-title"
                                 aria-describedby="alert-dialog-description"
                             >
-                                <DialogTitle id="alert-dialog-title">
+                                <DialogTitle id="alert-dialog-title" className='text-blue-600'>
                                     Thêm sinh viên mới
                                 </DialogTitle>
-                                <DialogContent>
+                                <DialogContent sx={{ maxWidth: 350 }}>
                                     <Autocomplete
-                                        options={options}
-                                        getOptionLabel={(option) => option.label}
-                                        style={{ width: 300, marginTop: 5 }}
+                                        options={listData}
+                                        getOptionLabel={(listData) => listData.fullName}
+                                        style={{ maxWidth: 300, marginTop: 5 }}
                                         renderInput={(params) => (
                                             <TextField {...params} label="Tìm kiếm sinh viên" variant="outlined" />
                                         )}
-                                        
+                                        onChange={(e, selectedOption) => setAddNewStudent({ ...addNewStudent, studentId: selectedOption ? selectedOption.id : 0 })}
                                     />
-                                    
+                                    <TextField
+                                        label="Thời gian đăng ký/tháng"
+                                        type='number'
+                                        value={(addNewStudent?.time === 0) ? '' : addNewStudent?.time}
+                                        onChange={(e) => setAddNewStudent({ ...addNewStudent, time: e.target.value })}
+                                        style={{ maxWidth: 300, marginTop: 7 }}
+                                        fullWidth
+                                    />
+
+                                    <FormControl sx={{ minWidth: 120, marginTop: 1 }} fullWidth>
+                                        <InputLabel id="demo-controlled-open-select-label">Năm học</InputLabel>
+                                        <Select
+                                            labelId="demo-controlled-open-select-label"
+                                            id="demo-controlled-open-select"
+                                            value={(addNewStudent?.schoolyearId === 0) ? '' : addNewStudent?.schoolyearId}
+                                            label="Năm học"
+                                            onChange={(e) => setAddNewStudent({ ...addNewStudent, schoolyearId: e.target.value })}
+                                        >
+                                            {
+                                                schoolYear?.map((e) => (
+                                                    <MenuItem value={e.id} key={e.id}>
+                                                        Năm học {e.year} - Học kỳ {e.semester}
+                                                    </MenuItem>
+                                                ))
+                                            }
+                                        </Select>
+                                    </FormControl>
+
+                                    <FormControl sx={{ minWidth: 120, marginTop: 1 }} fullWidth>
+                                        <InputLabel id="demo-controlled-open-select-label">Phí phòng</InputLabel>
+                                        <Select
+                                            labelId="demo-controlled-open-select-label"
+                                            id="demo-controlled-open-select"
+                                            value={addNewStudent?.paymentStatus}
+                                            label="Phí phòng"
+                                            onChange={(e) => setAddNewStudent({ ...addNewStudent, paymentStatus: e.target.value })}
+                                        >
+                                            <MenuItem value={true}>
+                                                Đã thanh toán
+                                            </MenuItem>
+                                            <MenuItem value={false}>
+                                                Chưa thanh toán
+                                            </MenuItem>
+                                        </Select>
+                                    </FormControl>
+
                                 </DialogContent>
                                 <DialogActions>
-                                    <Button onClick={() => setOpen2(false)}>Hủy</Button>
-                                    <Button onClick={() => setOpen2(false)} autoFocus>
+                                    <Button onClick={() => setOpen2(false)}>Đóng lại</Button>
+                                    <Button onClick={() => handleAdd()} autoFocus>
                                         Lưu lại
                                     </Button>
                                 </DialogActions>
@@ -318,7 +387,7 @@ const RoomDetailsInformation = () => {
                                     <div key={e.id}>
                                         <Card sx={{ maxWidth: 345 }}>
                                             <div>
-                                                <img src={'http://localhost:8088/' + e.student?.avatar} />
+                                                <img className='max-h-44 w-full' src={'http://localhost:8088/' + e.student?.avatar} />
                                             </div>
                                             <CardContent>
                                                 <Typography gutterBottom variant="h6" color="blue" component="div">
@@ -335,7 +404,7 @@ const RoomDetailsInformation = () => {
                                                 </Typography> */}
                                             </CardContent>
                                             <CardActions>
-                                                <Button variant="outlined" color='error' startIcon={<DeleteIcon />}>
+                                                <Button onClick={() => { setId(e.id); setOpenDelete(true); }} variant="outlined" color='error' startIcon={<DeleteIcon />}>
                                                     Xóa
                                                 </Button>
                                                 <Button onClick={() => DetailsInformation(e)} variant="outlined" color='primary' startIcon={<MoreIcon />}>
@@ -351,6 +420,26 @@ const RoomDetailsInformation = () => {
                                 )
                             }
                         </div>
+                        <Dialog
+                            open={openDelete}
+                            aria-labelledby="alert-dialog-title"
+                            aria-describedby="alert-dialog-description"
+                        >
+                            <DialogTitle id="alert-dialog-title" color='red'>
+                                {"Bạn có muốn xóa sinh viên này?"}
+                            </DialogTitle>
+                            <DialogContent>
+                                <DialogContentText id="alert-dialog-description">
+                                    Sinh viên sẽ bị đưa ra khỏi phòng!
+                                </DialogContentText>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={() => setOpenDelete(false)}>Đóng lại</Button>
+                                <Button onClick={() => deleteOneStudent()} autoFocus>
+                                    Lưu lại
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
                         <Dialog
                             // fullScreen={fullScreen}
                             open={open}

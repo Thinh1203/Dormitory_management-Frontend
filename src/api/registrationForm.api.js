@@ -78,13 +78,26 @@ export const getOneDetail = async (id) => {
 
 export const updateOne = async (id, data) => {
     try {
-      const token = localStorage.getItem("token");
-      const headers = {
-        'Authorization': `Bearer ${token}`
-      };
-      const result = await instance.patch(`/registrationForm/update/${id}`, data, { headers });
-      return result;
+        const token = localStorage.getItem("token");
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+        const result = await instance.patch(`/registrationForm/update/${id}`, data, { headers });
+        return result;
     } catch (error) {
-      return error;
+        return error;
     }
-  }
+}
+
+export const exportFile = async () => {
+    try {
+        const token = localStorage.getItem("token");
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+        const result = await instance.get('/repairRequestForm/export', { headers, responseType: 'arraybuffer' });
+        return result;
+    } catch (error) {
+        return error;
+    }
+}

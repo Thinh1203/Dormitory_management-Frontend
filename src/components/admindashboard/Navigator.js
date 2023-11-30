@@ -31,6 +31,7 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import SettingsIcon from '@mui/icons-material/Settings';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 
 const Navigator = (props) => {
   const { ...other } = props;
@@ -125,7 +126,7 @@ const Navigator = (props) => {
           </ListItem>
         </Box>
         <Collapse in={open2} timeout="auto" unmountOnExit>
-          <Box sx={{ bgcolor: '#1D2C40' }}>
+          {/* <Box sx={{ bgcolor: '#1D2C40' }}>
             <ListItem disablePadding sx={{ marginLeft: 1 }}>
               <ListItemButton sx={item} component={Link} to="/admin/dashboard">
                 <ListItemIcon>
@@ -134,7 +135,7 @@ const Navigator = (props) => {
                 <ListItemText>Đơn đăng ký trả chỗ</ListItemText>
               </ListItemButton>
             </ListItem>
-          </Box>
+          </Box> */}
           <Box sx={{ bgcolor: '#1D2C40' }}>
             <ListItem disablePadding sx={{ marginLeft: 1 }}>
               <ListItemButton sx={item} component={Link} to="/admin/dashboard/danhsachdondangky">
@@ -148,7 +149,7 @@ const Navigator = (props) => {
         </Collapse>
         <Box sx={{ bgcolor: '#101F33' }}>
           <ListItem disablePadding>
-            <ListItemButton sx={item} component={Link} to="/admin/dashboard">
+            <ListItemButton sx={item} component={Link} to="/admin/dashboard/quanlysuachua">
               <ListItemIcon>
                 <PhonelinkOffIcon />
               </ListItemIcon>
@@ -209,6 +210,16 @@ const Navigator = (props) => {
                 <SettingsIcon />
               </ListItemIcon>
               <ListItemText>Quản lý thiết bị</ListItemText>
+            </ListItemButton>
+          </ListItem>
+        </Box>
+        <Box sx={{ bgcolor: '#101F33' }}>
+          <ListItem disablePadding>
+            <ListItemButton sx={item} component={Link} to="/admin/dashboard/viphamnoiquy">
+              <ListItemIcon>
+                <PersonRemoveIcon />
+              </ListItemIcon>
+              <ListItemText>Quản lý vi phạm nội quy</ListItemText>
             </ListItemButton>
           </ListItem>
         </Box>

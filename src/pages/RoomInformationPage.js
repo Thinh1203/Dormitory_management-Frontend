@@ -5,7 +5,7 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getInformationStudentInRoom } from "../api/room.api";
 import { getConfig } from "../api/payment.api";
-import axios from "axios"; 
+import axios from "axios";
 
 const RoomInformationPage = () => {
     const [data, setData] = React.useState({});
@@ -64,17 +64,9 @@ const RoomInformationPage = () => {
     ]
     const handlePayment = async () => {
         try {
-            const response = await axios.post("http://localhost:8088/api/payment/create", {
-                // Truyền các thông tin cần thiết cho API thanh toán
-                amount: 100, // Thay đổi giá trị tùy theo yêu cầu của bạn
-                orderDescription: "ThanhToanPhiPhong",
-                orderType: "ThanhToanPhiPhong",
-                language: "vn", // Hoặc bạn có thể đọc từ state hoặc props của component
-                // Thêm các thông tin khác tùy thuộc vào API của bạn
-              });
-              console.log(response.data.vnpUrl);
-              return
-              window.location.href = response.data.vnpUrl;
+            const response = await axios.post("http://localhost:8088/api/payment/pay", paymentData);
+            console.log(response.data);
+            window.location.href = response.data.approval_url
         } catch (error) {
             console.error("Error during payment:", error);
         }
@@ -90,6 +82,9 @@ const RoomInformationPage = () => {
                             <h2 className="px-6 text-blue-500 text-lg sm:text-md font-semibold underline">
                                 Thông tin ở ký túc xá
                             </h2>
+                            {/* <h2 className="px-6 text-blue-500 text-lg sm:text-md font-semibold underline hover:text-red-500 hover:cursor-pointer">
+                                Đăng ký trả chỗ
+                            </h2> */}
                             <Link to="/dangkysuachuacsvc">
                                 <h2 className="px-6 text-blue-500 text-lg sm:text-md font-semibold underline hover:text-red-500">
                                     Sửa chữa thiết bị
@@ -169,9 +164,9 @@ const RoomInformationPage = () => {
                                             onClick={
                                                 () => {
                                                     setPaymentData({
+                                                        title: "Thanh toán phí phòng.",
                                                         amount: data?.room?.roomFee,
-                                                        orderDescription: "Thanh toán phí phòng",
-                                                        language: "vn"
+                                                        sku: data?.room?.id
                                                     });
                                                     handlePayment();
                                                 }

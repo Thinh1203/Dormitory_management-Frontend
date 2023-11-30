@@ -13,25 +13,10 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
-import { getAllForm, getOneDetail, updateOne } from '../../api/registrationForm.api';
 import { toast } from 'react-toastify';
-import { getAllRoomStudent } from '../../api/room.api';
-
-const names = [
-    {
-        id: 0,
-        title: 'Chờ duyệt'
-    },
-    {
-        id: 1,
-        title: 'Đã duyệt'
-    },
-    {
-        id: 2,
-        title: 'Đã từ chối'
-    }
-];
-
+import { getListRepairForm, getOneForm, updateOneForm } from '../../api/repairForm.api';
+import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
+import { exportFile } from '../../api/registrationForm.api';
 
 CustomTabPanel.propTypes = {
     children: PropTypes.node,
@@ -39,15 +24,8 @@ CustomTabPanel.propTypes = {
     value: PropTypes.number.isRequired,
 };
 
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-}
 
-const rows = [
-    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-];
+
 
 let theme = createTheme({
     palette: {
@@ -199,35 +177,65 @@ const drawerWidth = 256;
 
 
 
-const RoomFeeManager = () => {
+const RepairFormManager = () => {
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
-    const [search, setSearch] = React.useState("");
     const [filter, setFilter] = React.useState('');
     const [currentPage, setCurrentPage] = React.useState(1);
     const [data, setData] = React.useState([]);
     const [detailForm, setDetailForm] = React.useState({});
     const [open, setOpen] = React.useState(false);
-
+    const [id, setId] = React.useState(0);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
 
-
-
+    const updateStatusForm = async (id, data) => {
+        const res = await updateOneForm(id, data);
+        if (res?.status === 200) {
+            setId(0);
+            return toast.success('Đã duyệt đơn!', { position: "bottom-right", autoClose: 1000 });
+        }
+    };
     const handleChangePage = (event, newPage) => {
         setCurrentPage(newPage);
     };
+    const handleDetail = async (id) => {
+        const res = await getOneForm(id);
+        setDetailForm(res.data);
+        setOpen(true);
+    };
+
+    const downloadFile = async () => {
+        try {
+            const response = await exportFile();
+
+            if (response.data instanceof ArrayBuffer) {
+                const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = 'exported_data.xlsx';
+                link.click();
+
+                window.URL.revokeObjectURL(link.href);
+            } else {
+                console.error('Unexpected response format:', response);
+            }
+        } catch (error) {
+            console.error('Error downloading file:', error);
+        }
+    };
+
 
     React.useEffect(() => {
         const fetchData = async () => {
-            const res = await getAllRoomStudent(currentPage, filter, search);
+            const res = await getListRepairForm(currentPage, filter);
             setData(res.data);
-            console.log(res.data);
         };
         fetchData();
-    }, [currentPage, filter, search]);
+    }, [currentPage, filter, id]);
     return (
         <ThemeProvider theme={theme}>
             <Box sx={{ display: 'flex', minHeight: '100vh' }}>
@@ -259,17 +267,17 @@ const RoomFeeManager = () => {
                             <div className='flex my-2'>
                                 <TextField
                                     select
-                                    label="Trạng thái phí phòng"
+                                    label="Trạng thái đơn"
                                     value={(filter === '') ? '' : filter}
                                     sx={{ maxWidth: 300 }}
                                     fullWidth
                                     onChange={(e) => setFilter(e.target.value)}
                                 >
                                     <MenuItem value={true} >
-                                        Đã thanh toán
+                                        Đã xử lý
                                     </MenuItem>
                                     <MenuItem value={false} >
-                                        Chưa thanh toán
+                                        Chưa xử lý
                                     </MenuItem>
                                 </TextField>
 
@@ -280,12 +288,9 @@ const RoomFeeManager = () => {
                                 </Tooltip>
                             </div>
                             <div className='flex mt-2 mx-2 justify-end'>
-                                <TextField
-                                    label="Nhập tên sinh viên, mã số"
-                                    fullWidth
-                                    sx={{ maxWidth: 300 }}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                />
+                                <Button onClick={() => downloadFile()} component="label" size='small' color='secondary' variant="contained" startIcon={<SystemUpdateAltIcon />}>
+                                    Export file
+                                </Button>
                             </div>
                         </div>
 
@@ -297,13 +302,7 @@ const RoomFeeManager = () => {
                     <div className=' bg-white mx-5'>
                         <TableContainer component={Paper}>
                             <Table sx={{ minWidth: 650 }} aria-label="caption table">
-                                <caption>
-                                    Tổng số tiền cần thu: {data?.totalRoomFee ? data.totalRoomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "N/A"}
-                                    &emsp;&emsp;&emsp;&emsp;
-                                    Số tiền đã thu: {data?.totalPaidRoomFee ? data.totalPaidRoomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "N/A"}
-                                    &emsp;&emsp;&emsp;&emsp;
-                                    Số tiền cần thu: {(data?.totalPaidRoomFee) ? (data.totalRoomFee - data.totalPaidRoomFee).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "N/A"}
-                                </caption>
+
                                 <TableHead>
                                     <TableRow>
                                         <TableCell align="center" className='border-r-2'>Họ và tên</TableCell>
@@ -312,8 +311,8 @@ const RoomFeeManager = () => {
                                         <TableCell align="center" className='border-r-2'>Mã phòng</TableCell>
                                         <TableCell align="center" className='border-r-2'>Mã khu vực</TableCell>
                                         <TableCell align="center" className='border-r-2'>Phòng nam/nữ</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Phí phòng</TableCell>
                                         <TableCell align="center" className='border-r-2'>Trạng thái</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Hành động</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -325,12 +324,32 @@ const RoomFeeManager = () => {
                                             <TableCell align="center" className='border-r-2'>{e.room.roomCode}</TableCell>
                                             <TableCell align="center" className='border-r-2'>{e.room.building.areaCode}</TableCell>
                                             <TableCell align="center" className='border-r-2'>{e.room.roomMale}</TableCell>
-                                            <TableCell align="center" className='border-r-2'>{e.roomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}đ</TableCell>
                                             <TableCell align="center" className='border-r-2'>
-                                                {e.paymentStatus
-                                                    ? (<span className='text-green-600 font-medium'>Đã thanh toán</span>)
-                                                    : (<span className='text-red-600 font-medium'>Chưa thanh toán</span>)
+                                                {e.status
+                                                    ? (<span className='text-green-600 font-medium'>Đã xử lý</span>)
+                                                    : (<span className='text-red-600 font-medium'>Chưa xử lý</span>)
                                                 } </TableCell>
+                                            <TableCell align="center" className='border-r-2'>
+                                                <Button
+                                                    variant='contained'
+                                                    color='success'
+                                                    size='small'
+                                                    sx={{ marginX: 1 }}
+                                                    disabled={e.status}
+                                                    onClick={() => { updateStatusForm(e?.id, { status: true }); setId(e?.id); }}
+                                                >
+                                                    Duyệt
+                                                </Button>
+                                                <Button
+                                                    variant='contained'
+                                                    color='primary'
+                                                    size='small'
+                                                    onClick={() => handleDetail(e.id)}
+                                                >
+                                                    Chi tiết
+                                                </Button>
+                                            </TableCell>
+
                                         </TableRow>
                                     )) :
                                         (
@@ -352,6 +371,65 @@ const RoomFeeManager = () => {
                                 onChange={handleChangePage} />
                         </Stack>
                     </div>
+                    <Dialog
+                        open={open}
+                        aria-labelledby="alert-dialog-title"
+                        aria-describedby="alert-dialog-description"
+                    >
+                        <DialogTitle id="alert-dialog-title" className='text-blue-600 font-medium'>
+                            Chi tiết đơn đăng ký
+                        </DialogTitle>
+                        <DialogContent>
+
+                            <div className='grid grid-cols-2 gap-2'>
+                                {
+                                    detailForm ? detailForm[0]?.listofdevices?.map((e) => (
+                                        <React.Fragment>
+                                            <div className='mt-2'>
+                                                <TextField
+                                                    label="Mã sửa chữa"
+                                                    value={e?.repairCode}
+                                                    sx={{ maxWidth: 300 }}
+                                                    fullWidth
+                                                />
+                                            </div>
+                                            <div className='mt-2'>
+                                                <TextField
+                                                    label="Chi tiết sửa chữa"
+                                                    value={e?.repairDetail}
+                                                    sx={{ maxWidth: 300 }}
+                                                    fullWidth
+                                                />
+                                            </div>
+                                        </React.Fragment>
+                                    )) : ''
+                                }
+                            </div>
+                            <div className='grid grid-cols-2 gap-2'>
+                                <div className='mt-2'>
+                                    <TextField
+                                        label="Thời gian đăng ký"
+                                        value={new Date(detailForm[0]?.repairrequestform.createdAt).toLocaleDateString('en-GB')}
+                                        sx={{ maxWidth: 300 }}
+                                        fullWidth
+                                    />
+                                </div>
+                                <div className='mt-2'>
+                                    <TextField
+                                        label="Thời gian xử lý"
+                                        value={detailForm[0]?.repairrequestform.status ? new Date(detailForm[0]?.repairrequestform.updatedAt).toLocaleDateString('en-GB') : 'Chưa xử lý'}
+                                        sx={{ maxWidth: 300 }}
+                                        fullWidth
+                                    />
+                                </div>
+                            </div>
+
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => setOpen(false)} autoFocus>Đóng lại</Button>
+
+                        </DialogActions>
+                    </Dialog>
                 </div>
             </Box>
         </ThemeProvider>
@@ -360,4 +438,4 @@ const RoomFeeManager = () => {
 }
 
 
-export default RoomFeeManager;
+export default RepairFormManager;

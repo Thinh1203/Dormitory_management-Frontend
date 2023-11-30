@@ -22,6 +22,23 @@ export const getAllDevice = async (page) => {
     }
 }
 
+export const getAllList = async () => {
+    try {
+        const token = localStorage.getItem("token");
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+
+        const result = await instance.get('/device/getAllList', {
+            headers,
+        });
+
+        return result;
+    } catch (error) {
+        return error;
+    }
+}
+
 export const addNewDevice = async (data) => {
     try {
         const token = localStorage.getItem("token");

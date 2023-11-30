@@ -59,3 +59,7 @@ export const ListRoomType = [
     "Phòng 6 người ở",
     "Phòng 8 người ở"
 ];
+
+export const listMonth = [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+]

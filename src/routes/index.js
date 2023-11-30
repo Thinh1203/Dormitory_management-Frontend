@@ -24,6 +24,8 @@ import RoomFeeManager from "../pages/adminDashboard/RoomFeeManager";
 import RepairFormManager from "../pages/adminDashboard/RepairFormManager";
 import SuccessPage from "../pages/SuccessPage";
 import RuleManager from "../pages/adminDashboard/RuleManager";
+import ReceiptManager from "../pages/adminDashboard/ReceiptManager";
+import StatisticalManager from "../pages/adminDashboard/StatisticalReceipt";
 
 const routers = [
     { path: "/", component: LoginPage },
@@ -41,7 +43,9 @@ const routers = [
     { path: "/tintuc-sukien", component: EventPage },
     { path: "/admin/dashboard", component: MainDashboard },
     { path: "/admin/dashboard/viphamnoiquy", component: RuleManager },
+    { path: "/admin/dashboard/tiendiennuoc", component: ReceiptManager },
     { path: "/admin/dashboard/namhoc-hocky", component: SchoolYearManager },
+    { path: "/admin/dashboard/thongke", component: StatisticalManager },
     { path: "/admin/dashboard/thietbi", component: DeviceManager },
     { path: "/admin/dashboard/phiphongo", component: RoomFeeManager },
     { path: "/admin/dashboard/quanlysuachua", component: RepairFormManager },

@@ -24,8 +24,8 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import BedroomChildIcon from '@mui/icons-material/BedroomChild';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import LockPersonIcon from '@mui/icons-material/LockPerson';
 import LogoutIcon from '@mui/icons-material/Logout';
+import AddchartIcon from '@mui/icons-material/Addchart';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
@@ -126,16 +126,16 @@ const Navigator = (props) => {
           </ListItem>
         </Box>
         <Collapse in={open2} timeout="auto" unmountOnExit>
-          {/* <Box sx={{ bgcolor: '#1D2C40' }}>
+          <Box sx={{ bgcolor: '#1D2C40' }}>
             <ListItem disablePadding sx={{ marginLeft: 1 }}>
-              <ListItemButton sx={item} component={Link} to="/admin/dashboard">
+              <ListItemButton sx={item} component={Link} to="/admin/dashboard/thongke">
                 <ListItemIcon>
-                  <ExitToAppIcon />
+                  <AddchartIcon />
                 </ListItemIcon>
-                <ListItemText>Đơn đăng ký trả chỗ</ListItemText>
+                <ListItemText>Thống kê hóa đơn</ListItemText>
               </ListItemButton>
             </ListItem>
-          </Box> */}
+          </Box>
           <Box sx={{ bgcolor: '#1D2C40' }}>
             <ListItem disablePadding sx={{ marginLeft: 1 }}>
               <ListItemButton sx={item} component={Link} to="/admin/dashboard/danhsachdondangky">
@@ -174,7 +174,7 @@ const Navigator = (props) => {
         <Collapse in={open} timeout="auto" unmountOnExit>
           <Box sx={{ bgcolor: '#1D2C40' }}>
             <ListItem disablePadding sx={{ marginLeft: 1 }}>
-              <ListItemButton sx={item} component={Link} to="/admin/dashboard">
+              <ListItemButton sx={item} component={Link} to="/admin/dashboard/tiendiennuoc">
                 <ListItemIcon>
                   <MoreVertIcon />
                 </ListItemIcon>

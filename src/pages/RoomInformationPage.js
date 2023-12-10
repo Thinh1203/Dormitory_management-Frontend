@@ -4,12 +4,57 @@ import Header from "../components/Header";
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getInformationStudentInRoom } from "../api/room.api";
-import { getConfig } from "../api/payment.api";
 import axios from "axios";
+import { getRoomReceipt } from "../api/receipt.api";
+import { checkStudentRoom } from "../api/registrationForm.api";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import { addNewCheckOut, getOneFormCheckOut } from "../api/checkout.api";
+import { toast } from "react-toastify";
+
 
 const RoomInformationPage = () => {
     const [data, setData] = React.useState({});
     const [paymentData, setPaymentData] = React.useState({});
+    const [receipt, setReceipt] = React.useState([]);
+    const [checkStudentInRoom, setCheckStudentInRoom] = React.useState(false);
+    const [checkFromCheckOut, setCheckFromCheckOut] = React.useState(false);
+    const [formData, setFormData] = React.useState({});
+    const [open, setOpen] = React.useState(false);
+
+
+    const sendFormCheckOut = async () => {
+        const res = await addNewCheckOut();
+        if (res.status === 200) {
+            setOpen(false);
+            return toast.success('Đã gửi đơn đăng ký trả chỗ!', { position: "bottom-right", autoClose: 1000 });
+        }
+    };
+
+    useEffect(() => {
+        const checkStudentInRoom = async () => {
+            const res = await checkStudentRoom();
+            if (res.status === 200) {
+                setCheckStudentInRoom(true);
+            }
+        };
+        checkStudentInRoom();
+    }, []);
+
+    useEffect(() => {
+        const checkOut = async () => {
+            const res = await getOneFormCheckOut();
+            if (res?.status === 200) {
+                setCheckFromCheckOut(true);
+                setFormData(res.data);
+            }
+        };
+        checkOut();
+    }, []);
+
     useEffect(() => {
         const fetchApi = async () => {
             const res = await getInformationStudentInRoom();
@@ -18,50 +63,15 @@ const RoomInformationPage = () => {
         fetchApi();
     }, []);
 
-    const list = [
-        {
-            "month": 1,
-            "oldElectricityIndicator": 23,
-            "newElectricityIndicator": 35,
-            "oldWaterIndicator": 12,
-            "newWaterIndicator": 34,
-            "electricityPrice": 1200,
-            "waterPrice": 2350,
-            "totalElectricityBill": "250.000",
-            "totalWaterBill": "23.000",
-            "totalBill": "253.000",
-            "paymentStatus": false,
-            "paymentTime": "22/12/2023"
-        },
-        {
-            "month": 2,
-            "oldElectricityIndicator": 23,
-            "newElectricityIndicator": 35,
-            "oldWaterIndicator": 12,
-            "newWaterIndicator": 34,
-            "electricityPrice": 1200,
-            "waterPrice": 2350,
-            "totalElectricityBill": "250.000",
-            "totalWaterBill": "23.000",
-            "totalBill": "253.000",
-            "paymentStatus": false,
-            "paymentTime": ""
-        },
-        {
-            "month": 3,
-            "oldElectricityIndicator": 23,
-            "newElectricityIndicator": 35,
-            "oldWaterIndicator": 12,
-            "newWaterIndicator": 34,
-            "electricityPrice": 1200,
-            "waterPrice": 2350,
-            "totalElectricityBill": "250.000",
-            "totalWaterBill": "23.000",
-            "totalBill": "253.000",
-            "paymentStatus": false,
-            "paymentTime": ""
-        }
-    ]
+    useEffect(() => {
+        const fetchReceipt = async () => {
+            const res = await getRoomReceipt();
+            setReceipt(res.data);
+        };
+        fetchReceipt();
+    }, []);
+
+
     const handlePayment = async () => {
         try {
             const response = await axios.post("http://localhost:8088/api/payment/pay", paymentData);
@@ -82,14 +92,41 @@ const RoomInformationPage = () => {
                             <h2 className="px-6 text-blue-500 text-lg sm:text-md font-semibold underline">
                                 Thông tin ở ký túc xá
                             </h2>
-                            {/* <h2 className="px-6 text-blue-500 text-lg sm:text-md font-semibold underline hover:text-red-500 hover:cursor-pointer">
-                                Đăng ký trả chỗ
-                            </h2> */}
+                            {
+                                checkStudentInRoom &&
+                                (!formData?.status ?
+                                    (<h2 className="px-6 text-yellow-500 text-lg sm:text-md font-semibold underline">
+                                        Đã đăng ký trả chỗ
+                                    </h2>) : (<button onClick={() => setOpen(true)} className="px-6 text-blue-500 text-lg sm:text-md font-semibold underline hover:text-green-500 hover:cursor-pointer">
+                                        Đăng ký trả chỗ
+                                    </button>)
+                                )
+                            }
                             <Link to="/dangkysuachuacsvc">
-                                <h2 className="px-6 text-blue-500 text-lg sm:text-md font-semibold underline hover:text-red-500">
+                                <h2 className="px-6 text-blue-500 text-lg sm:text-md font-semibold underline hover:text-green-500">
                                     Sửa chữa thiết bị
                                 </h2>
                             </Link>
+                            <Dialog
+                                open={open}
+                                aria-labelledby="alert-dialog-title"
+                                aria-describedby="alert-dialog-description"
+                            >
+                                <DialogTitle id="alert-dialog-title" color='red'>
+                                    Bạn có muốn đăng ký trả chỗ?
+                                </DialogTitle>
+                                <DialogContent>
+                                    <DialogContentText id="alert-dialog-description">
+                                        Sau khi đăng ký sẽ không thể hủy đơn!
+                                    </DialogContentText>
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={() => setOpen(false)}>Hủy bỏ</Button>
+                                    <Button onClick={() => sendFormCheckOut()} autoFocus>
+                                        Đồng ý
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
                         </div>
                         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
                             <tbody>
@@ -211,7 +248,7 @@ const RoomInformationPage = () => {
                             </thead>
                             <tbody>
                                 {
-                                    list ? list?.map((e, index) => (
+                                    receipt ? receipt?.map((e, index) => (
                                         <React.Fragment key={index}>
                                             <tr className="border-b border-gray-200 dark:border-gray-700" >
                                                 <td className="px-6 py-2 text-center sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
@@ -224,16 +261,23 @@ const RoomInformationPage = () => {
                                                     {e.newWaterIndicator - e.oldWaterIndicator} khối
                                                 </td>
                                                 <td className="px-6 text-center py-2 sm:text-sm text-xs ">
-                                                    {e.totalWaterBill}đ
+                                                    {e.receipt.totalWaterBill.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}đ
                                                 </td>
                                                 <td rowSpan={2} className="px-6 py-2 text-xl text-center bg-gray-50 dark:bg-gray-800">
-                                                    {e.totalBill}đ
+                                                    {e.receipt.totalBill.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}đ
                                                 </td>
                                                 <td rowSpan={2} className="px-6 text-center py-2 sm:text-sm text-xs">
-                                                    {e.status ? e.paymentTime : "Chưa đóng"}
+                                                    {e.receipt.paymentStatus ? new Date(e.receipt.updatedAt).toLocaleString('en-GB', {
+                                                        hour: 'numeric',
+                                                        minute: 'numeric',
+                                                        second: 'numeric',
+                                                        day: 'numeric',
+                                                        month: 'numeric',
+                                                        year: 'numeric',
+                                                    }) : "Chưa đóng"}
                                                 </td>
                                                 <td rowSpan={2} className="px-6 py-2 text-xl text-center bg-gray-50 dark:bg-gray-800">
-                                                    <Button variant="contained" disabled={e.paymentStatus}>
+                                                    <Button variant="contained" disabled={e.receipt.paymentStatus}>
                                                         Thanh toán
                                                     </Button>
                                                 </td>
@@ -249,13 +293,19 @@ const RoomInformationPage = () => {
                                                     {e.newElectricityIndicator - e.oldElectricityIndicator}kW
                                                 </td>
                                                 <td className="px-6 text-center py-2 sm:text-sm text-xs  ">
-                                                    {e.totalElectricityBill}đ
+                                                    {e.receipt.totalElectricityBill.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}đ
                                                 </td>
 
 
                                             </tr>
                                         </React.Fragment>
-                                    )) : ""
+                                    )) : (
+                                        <tr>
+                                            <td colSpan={7} className="text-red-600 font-semibold text-center text-xl">
+                                                Không có dữ liệu
+                                            </td>
+                                        </tr>
+                                    )
                                 }
                             </tbody>
                         </table>

@@ -13,15 +13,16 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { toast } from 'react-toastify';
-import { getAllReceipt, getOneReceipt, updateOne } from '../../api/receipt.api';
+import { addNewReceipt, getAllReceipt, getOneReceipt, updateOne } from '../../api/receipt.api';
 import { listMonth } from '../../utils/data';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
-import { getAllSchoolYear } from '../../api/room.api';
+import { getAllSchoolYear, getListRoom } from '../../api/room.api';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { getAreaCode } from '../../api/Building.api';
 import InputAdornment from '@mui/material/InputAdornment';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
+import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 
 CustomTabPanel.propTypes = {
     children: PropTypes.node,
@@ -29,15 +30,7 @@ CustomTabPanel.propTypes = {
     value: PropTypes.number.isRequired,
 };
 
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-}
 
-const rows = [
-    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-];
 
 let theme = createTheme({
     palette: {
@@ -199,7 +192,7 @@ const ReceiptManager = () => {
         schoolyearId: '',
         paymentStatus: '',
     });
-    const [sort, setSort] = React.useState({ areaCode: '' });
+    const [query, setQuery] = React.useState({ id: 0 });
     const [currentPage, setCurrentPage] = React.useState(1);
     const [data, setData] = React.useState([]);
     const [detailData, setDetailData] = React.useState({});
@@ -216,6 +209,7 @@ const ReceiptManager = () => {
         roomId: '',
         schoolyearId: ''
     });
+    const [list, setList] = React.useState([]);
 
 
     const handleDrawerToggle = () => {
@@ -232,7 +226,7 @@ const ReceiptManager = () => {
 
     const detailOneReceipt = async (id) => {
         const res = await getOneReceipt(id);
-        console.log(res.data);
+        // console.log(res.data);
         setDetailData({
             oldElectricityIndicator: res?.data.oldElectricityIndicator,
             newElectricityIndicator: res?.data.newElectricityIndicator,
@@ -243,6 +237,33 @@ const ReceiptManager = () => {
         });
         setOpenDetail(true);
 
+    };
+
+    const handleAddReceipt = async () => {
+        if (!addData.month ||
+            !addData.newElectricityIndicator ||
+            !addData.newWaterIndicator ||
+            !addData.oldElectricityIndicator ||
+            !addData.oldWaterIndicator ||
+            !addData.schoolyearId ||
+            !addData.roomId) {
+            return toast.error("Vui lòng điền đầy đủ thông tin!", { position: "bottom-right", autoClose: 1000 });
+        }
+        const res = await addNewReceipt(addData);
+        if (res?.status === 200) {
+            setOpen(false);
+            setAddData({
+                month: '',
+                oldElectricityIndicator: '',
+                newElectricityIndicator: '',
+                oldWaterIndicator: '',
+                newWaterIndicator: '',
+                roomId: '',
+                schoolyearId: ''
+            });
+            setQuery({ id: 0 });
+            return toast.success("Thêm thành công!", { position: "bottom-right", autoClose: 1000 });
+        }
     };
 
     const handleChangePage = (event, newPage) => {
@@ -266,12 +287,21 @@ const ReceiptManager = () => {
     }, []);
 
     React.useEffect(() => {
+        const fetchListRoom = async () => {
+            const res = await getListRoom(query);
+            setList(res.data);
+
+        };
+        fetchListRoom();
+    }, [query]);
+
+    React.useEffect(() => {
         const fetchData = async () => {
             const res = await getAllReceipt(currentPage, filter, search);
             setData(res.data);
         };
         fetchData();
-    }, [currentPage, filter, search, id]);
+    }, [currentPage, filter, search, id, open]);
     return (
         <ThemeProvider theme={theme}>
             <Box sx={{ display: 'flex', minHeight: '100vh' }}>
@@ -299,7 +329,7 @@ const ReceiptManager = () => {
                         {/* <h2>
                             Bộ lọc
                         </h2> */}
-                        <div className='grid grid-cols-1 sm:grid-cols-4 mt-2'>
+                        <div className='grid grid-cols-1 sm:grid-cols-5 mt-2'>
                             <div className='flex my-2'>
                                 <TextField
                                     select
@@ -361,6 +391,9 @@ const ReceiptManager = () => {
                                         ))
                                     }
                                 </TextField>
+
+                            </div>
+                            <div className='flex mt-2 mx-2 justify-end'>
                                 <Tooltip title="Bỏ lọc" placement="top" onClick={() => setFilter({
                                     month: '',
                                     schoolyearId: '',
@@ -375,7 +408,11 @@ const ReceiptManager = () => {
                                         <AddCircleIcon />
                                     </Button>
                                 </Tooltip>
-
+                                <Tooltip title="Tải tệp lên" placement="top" >
+                                    <Button variant='contained' size='large' color='warning' sx={{ paddingY: 2, marginLeft: 1, maxHeight: 54 }}>
+                                        <DriveFolderUploadIcon />
+                                    </Button>
+                                </Tooltip>
                                 <Dialog open={open} >
                                     <DialogTitle color='blue'>Ghi chỉ số điện nước</DialogTitle>
                                     <DialogContent sx={{ width: 600 }}>
@@ -384,13 +421,13 @@ const ReceiptManager = () => {
                                                 <TextField
                                                     select
                                                     label="Chọn tòa nhà"
-                                                    value={sort.areaCode}
-                                                    onChange={(e) => setSort({ areaCode: e.target.value })}
-                                                    sx={{ maxWidth: 300 }}
+                                                    value={query.id > 0 ? query.id : ''}
+                                                    onChange={(e) => setQuery({ id: e.target.value })}
+                                                    sx={{ maxWidth: 300, marginBottom: 1 }}
                                                     fullWidth
                                                 >
                                                     {dataBuildingList && dataBuildingList?.map((e) => (
-                                                        <MenuItem key={e.id} value={e.areaCode}>
+                                                        <MenuItem key={e.id} value={e.id}>
                                                             Khu {e.area} {"-"} dãy {e.areaCode}
                                                         </MenuItem>
                                                     ))}
@@ -398,68 +435,71 @@ const ReceiptManager = () => {
                                                 <TextField
                                                     select
                                                     label="Năm học - học kỳ"
-                                                    value={sort.areaCode}
-                                                    onChange={(e) => setSort({ areaCode: e.target.value })}
-                                                    sx={{ maxWidth: 300 }}
+                                                    value={addData.schoolyearId}
+                                                    onChange={(e) => setAddData({ ...addData, schoolyearId: e.target.value })}
+                                                    sx={{ maxWidth: 300, marginBottom: 1 }}
                                                     fullWidth
                                                 >
-                                                    {dataBuildingList && dataBuildingList?.map((e) => (
-                                                        <MenuItem key={e.id} value={e.areaCode}>
-                                                            Khu {e.area} {"-"} dãy {e.areaCode}
-                                                        </MenuItem>
-                                                    ))}
+                                                    {
+                                                        listSchoolYear && listSchoolYear?.map((e, index) => (
+                                                            <MenuItem key={index} value={e.id}>
+                                                                Năm học {e.year} - học kỳ {e.semester}
+                                                            </MenuItem>
+                                                        ))
+                                                    }
                                                 </TextField>
+
                                                 <TextField
-                                                    select
                                                     label="Chỉ số điện cũ"
-                                                    value={sort.areaCode}
-                                                    onChange={(e) => setSort({ areaCode: e.target.value })}
-                                                    sx={{ maxWidth: 300 }}
+                                                    id="outlined-start-adornment"
+                                                    type='number'
+                                                    value={addData.oldElectricityIndicator}
+                                                    sx={{ maxWidth: 300, marginBottom: 1 }}
+                                                    InputProps={{
+                                                        endAdornment: <InputAdornment position="end">kW</InputAdornment>,
+                                                    }}
+                                                    onChange={(e) => setAddData({ ...addData, oldElectricityIndicator: e.target.value })}
                                                     fullWidth
-                                                >
-                                                    {dataBuildingList && dataBuildingList?.map((e) => (
-                                                        <MenuItem key={e.id} value={e.areaCode}>
-                                                            Khu {e.area} {"-"} dãy {e.areaCode}
-                                                        </MenuItem>
-                                                    ))}
-                                                </TextField>
+                                                />
                                                 <TextField
-                                                    select
                                                     label="Chỉ số nước cũ"
-                                                    value={sort.areaCode}
-                                                    onChange={(e) => setSort({ areaCode: e.target.value })}
+                                                    id="outlined-start-adornment"
+                                                    type='number'
                                                     sx={{ maxWidth: 300 }}
+                                                    value={addData.oldWaterIndicator}
+                                                    InputProps={{
+                                                        endAdornment: <InputAdornment position="end">m&#xB3;</InputAdornment>,
+                                                    }}
+                                                    onChange={(e) => setAddData({ ...addData, oldWaterIndicator: e.target.value })}
                                                     fullWidth
-                                                >
-                                                    {dataBuildingList && dataBuildingList?.map((e) => (
-                                                        <MenuItem key={e.id} value={e.areaCode}>
-                                                            Khu {e.area} {"-"} dãy {e.areaCode}
-                                                        </MenuItem>
-                                                    ))}
-                                                </TextField>
+                                                />
                                             </div>
                                             <div className='w-full my-2'>
                                                 <TextField
                                                     select
                                                     label="Chọn phòng"
-                                                    value={sort.areaCode}
-                                                    onChange={(e) => setSort({ areaCode: e.target.value })}
-                                                    sx={{ maxWidth: 300 }}
+                                                    value={addData.roomId}
+                                                    onChange={(e) => setAddData({ ...addData, roomId: e.target.value })}
+                                                    sx={{ maxWidth: 300, marginBottom: 1 }}
                                                     fullWidth
                                                 >
-                                                    {dataBuildingList && dataBuildingList?.map((e) => (
-                                                        <MenuItem key={e.id} value={e.areaCode}>
-                                                            Khu {e.area} {"-"} dãy {e.areaCode}
+                                                    {(list && list?.length > 0) ? list?.map((e) => (
+                                                        <MenuItem key={e.id} value={e.id}>
+                                                            Phòng {e.roomCode}
                                                         </MenuItem>
-                                                    ))}
+                                                    )) :
+                                                        <MenuItem value=''>
+                                                            Phòng không tồn tại
+                                                        </MenuItem>
+                                                    }
                                                 </TextField>
                                                 <TextField
                                                     select
                                                     label="Tháng"
-                                                    value={(filter.month === '') ? '' : filter.month}
-                                                    sx={{ maxWidth: 300 }}
+                                                    value={addData.month}
+                                                    sx={{ maxWidth: 300, marginBottom: 1 }}
                                                     fullWidth
-                                                    onChange={(e) => setFilter({ ...filter, month: e.target.value })}
+                                                    onChange={(e) => setAddData({ ...addData, month: e.target.value })}
                                                 >
                                                     {
                                                         listMonth.map((e, index) => (
@@ -470,43 +510,39 @@ const ReceiptManager = () => {
                                                     }
                                                 </TextField>
                                                 <TextField
-                                                    select
                                                     label="Chỉ số điện mới"
-                                                    value={sort.areaCode}
-                                                    onChange={(e) => setSort({ areaCode: e.target.value })}
-                                                    sx={{ maxWidth: 300 }}
+                                                    id="outlined-start-adornment"
+                                                    type='number'
+                                                    value={addData.newElectricityIndicator}
+                                                    sx={{ maxWidth: 300, marginBottom: 1 }}
+                                                    InputProps={{
+                                                        endAdornment: <InputAdornment position="end">kW</InputAdornment>,
+                                                    }}
+                                                    onChange={(e) => setAddData({ ...addData, newElectricityIndicator: e.target.value })}
                                                     fullWidth
-                                                >
-                                                    {dataBuildingList && dataBuildingList?.map((e) => (
-                                                        <MenuItem key={e.id} value={e.areaCode}>
-                                                            Khu {e.area} {"-"} dãy {e.areaCode}
-                                                        </MenuItem>
-                                                    ))}
-                                                </TextField>
+                                                />
                                                 <TextField
-                                                    select
                                                     label="Chỉ số nước mới"
-                                                    value={sort.areaCode}
-                                                    onChange={(e) => setSort({ areaCode: e.target.value })}
+                                                    id="outlined-start-adornment"
+                                                    type='number'
                                                     sx={{ maxWidth: 300 }}
+                                                    value={addData.newWaterIndicator}
+                                                    InputProps={{
+                                                        endAdornment: <InputAdornment position="end">m&#xB3;</InputAdornment>,
+                                                    }}
+                                                    onChange={(e) => setAddData({ ...addData, newWaterIndicator: e.target.value })}
                                                     fullWidth
-                                                >
-                                                    {dataBuildingList && dataBuildingList?.map((e) => (
-                                                        <MenuItem key={e.id} value={e.areaCode}>
-                                                            Khu {e.area} {"-"} dãy {e.areaCode}
-                                                        </MenuItem>
-                                                    ))}
-                                                </TextField>
+                                                />
                                             </div>
                                         </div>
                                     </DialogContent>
                                     <DialogActions>
-                                        <Button onClick={() => setOpen(false)}>Cancel</Button>
-                                        <Button onClick={() => setOpen(false)}>Subscribe</Button>
+                                        <Button onClick={() => setOpen(false)}>Đóng lại</Button>
+                                        <Button onClick={() => handleAddReceipt()}>Lưu lại</Button>
                                     </DialogActions>
                                 </Dialog>
-                            </div>
 
+                            </div>
                         </div>
 
                     </div>
@@ -612,7 +648,7 @@ const ReceiptManager = () => {
                                                 <TextField
                                                     label="Chỉ số điện cũ"
                                                     id="outlined-start-adornment"
-                                                    value={detailData ? detailData.oldElectricityIndicator : ''}
+                                                    value={detailData ? detailData?.oldElectricityIndicator : ''}
                                                     sx={{ paddingX: 0.5, marginY: 1 }}
                                                     InputProps={{
                                                         endAdornment: <InputAdornment position="start">kW</InputAdornment>,
@@ -623,7 +659,7 @@ const ReceiptManager = () => {
                                                     label="Chỉ số điện mới"
                                                     id="outlined-start-adornment"
                                                     sx={{ paddingX: 0.5 }}
-                                                    value={detailData ? detailData.newElectricityIndicator : ''}
+                                                    value={detailData ? detailData?.newElectricityIndicator : ''}
                                                     InputProps={{
                                                         endAdornment: <InputAdornment position="start">kW</InputAdornment>,
                                                     }}
@@ -634,20 +670,20 @@ const ReceiptManager = () => {
                                                     id="outlined-start-adornment"
                                                     sx={{ paddingX: 0.5, marginY: 1 }}
                                                     fullWidth
-                                                    value={detailData ? (detailData.newElectricityIndicator - detailData.oldElectricityIndicator) : ''}
+                                                    value={detailData ? (detailData?.newElectricityIndicator - detailData?.oldElectricityIndicator) : ''}
                                                     InputProps={{
                                                         endAdornment: <InputAdornment position="start">kW</InputAdornment>,
                                                     }}
                                                 />
-                                                 <TextField
+                                                <TextField
                                                     label="Tổng tiền điện"
                                                     id="outlined-start-adornment"
                                                     sx={{ paddingX: 0.5, marginY: 1 }}
                                                     fullWidth
+                                                    value={detailData ? detailData?.totalElectricityBill?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : ''}
                                                     InputProps={{
                                                         endAdornment: <InputAdornment position="start">đ</InputAdornment>,
                                                     }}
-                                                    value={detailData ? detailData.totalElectricityBill.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : ''}
                                                 />
                                             </div>
                                             <div className='w-full my-2'>
@@ -655,10 +691,10 @@ const ReceiptManager = () => {
                                                     label="Chỉ số nước cũ"
                                                     id="outlined-start-adornment"
                                                     fullWidth
-                                                    value={detailData ? detailData.oldWaterIndicator : ''}
+                                                    value={detailData ? detailData?.oldWaterIndicator : ''}
                                                     sx={{ paddingX: 0.5, marginY: 1 }}
                                                     InputProps={{
-                                                        endAdornment: <InputAdornment position="end">m&#xB3;</InputAdornment>,
+                                                        endAdornment: <InputAdornment position="start">m&#xB3;</InputAdornment>,
                                                     }}
                                                 />
                                                 <TextField
@@ -666,19 +702,19 @@ const ReceiptManager = () => {
                                                     id="outlined-start-adornment"
                                                     fullWidth
                                                     sx={{ paddingX: 0.5 }}
-                                                    value={detailData ? detailData.newWaterIndicator : ''}
+                                                    value={detailData ? detailData?.newWaterIndicator : ''}
                                                     InputProps={{
-                                                        endAdornment: <InputAdornment position="end">m&#xB3;</InputAdornment>,
+                                                        endAdornment: <InputAdornment position="start">m&#xB3;</InputAdornment>,
                                                     }}
                                                 />
                                                 <TextField
                                                     label="Chỉ số nước sử dụng"
                                                     id="outlined-start-adornment"
                                                     fullWidth
-                                                    value={detailData ? (detailData.newWaterIndicator - detailData.oldWaterIndicator) : ''}
+                                                    value={detailData ? (detailData?.newWaterIndicator - detailData?.oldWaterIndicator) : ''}
                                                     sx={{ paddingX: 0.5, marginY: 1 }}
                                                     InputProps={{
-                                                        endAdornment: <InputAdornment position="end">m&#xB3;</InputAdornment>,
+                                                        endAdornment: <InputAdornment position="start">m&#xB3;</InputAdornment>,
                                                     }}
                                                 />
                                                 <TextField
@@ -686,9 +722,9 @@ const ReceiptManager = () => {
                                                     id="outlined-start-adornment"
                                                     sx={{ paddingX: 0.5, marginY: 1 }}
                                                     fullWidth
-                                                    value={detailData ? detailData.totalWaterBill.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : ''}
+                                                    value={detailData ? detailData?.totalWaterBill?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : ''}
                                                     InputProps={{
-                                                        endAdornment: <InputAdornment position="end">đ</InputAdornment>,
+                                                        endAdornment: <InputAdornment position="start">đ</InputAdornment>,
                                                     }}
                                                 />
                                             </div>

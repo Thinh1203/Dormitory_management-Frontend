@@ -13,25 +13,11 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
-import { getAllForm, getOneDetail, updateOne } from '../../api/registrationForm.api';
 import { toast } from 'react-toastify';
-import { getAllRoomStudent } from '../../api/room.api';
-
-const names = [
-    {
-        id: 0,
-        title: 'Chờ duyệt'
-    },
-    {
-        id: 1,
-        title: 'Đã duyệt'
-    },
-    {
-        id: 2,
-        title: 'Đã từ chối'
-    }
-];
-
+import { getListRepairForm, getOneForm, updateOneForm } from '../../api/repairForm.api';
+import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
+import { exportFile } from '../../api/registrationForm.api';
+import { getAllFormCheckOut, updateStatusForm } from '../../api/checkout.api';
 
 CustomTabPanel.propTypes = {
     children: PropTypes.node,
@@ -39,15 +25,8 @@ CustomTabPanel.propTypes = {
     value: PropTypes.number.isRequired,
 };
 
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-}
 
-const rows = [
-    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-];
+
 
 let theme = createTheme({
     palette: {
@@ -199,35 +178,38 @@ const drawerWidth = 256;
 
 
 
-const RoomFeeManager = () => {
+const CheckOutManager = () => {
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
-    const [search, setSearch] = React.useState("");
     const [filter, setFilter] = React.useState('');
     const [currentPage, setCurrentPage] = React.useState(1);
     const [data, setData] = React.useState([]);
-    const [detailForm, setDetailForm] = React.useState({});
-    const [open, setOpen] = React.useState(false);
-
+    const [search, setSearch] = React.useState('');
+    const [id, setId] = React.useState(0);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
 
-
-
+    const updateStatusFormCheckOut = async (id, data) => {
+        const res = await updateStatusForm(id, data);
+        if (res?.status === 200) {
+            setId(0);
+            return toast.success('Đã duyệt đơn!', { position: "bottom-right", autoClose: 1000 });
+        }
+    };
     const handleChangePage = (event, newPage) => {
         setCurrentPage(newPage);
     };
+ 
 
     React.useEffect(() => {
         const fetchData = async () => {
-            const res = await getAllRoomStudent(currentPage, filter, search);
+            const res = await getAllFormCheckOut(currentPage, filter, search);
             setData(res.data);
-            // console.log(res.data);
         };
         fetchData();
-    }, [currentPage, filter, search]);
+    }, [currentPage, search, filter, id]);
     return (
         <ThemeProvider theme={theme}>
             <Box sx={{ display: 'flex', minHeight: '100vh' }}>
@@ -255,21 +237,32 @@ const RoomFeeManager = () => {
                         {/* <h2>
                             Bộ lọc
                         </h2> */}
-                        <div className='grid grid-cols-1 sm:grid-cols-2 mt-2'>
-                            <div className='flex my-2'>
+                        <div className='grid grid-cols-1 sm:grid-cols-4 mt-2'>
+                            <div className='flex my-2 col-span-2'>
+                                <h2 className='text-2xl font-semibold text-blue-700'>Danh sách sinh đăng ký trả chỗ</h2>
+                            </div>
+                            <div className=' my-2'>
+                                <TextField
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    label="Tìm kiếm sinh viên"
+                                    fullWidth
+                                    sx={{ maxWidth: 300 }}
+                                />
+                            </div>
+                            <div className='flex mt-2 mx-2 justify-end'>
                                 <TextField
                                     select
-                                    label="Trạng thái phí phòng"
+                                    label="Trạng thái đơn"
                                     value={(filter === '') ? '' : filter}
                                     sx={{ maxWidth: 300 }}
                                     fullWidth
                                     onChange={(e) => setFilter(e.target.value)}
                                 >
                                     <MenuItem value={true} >
-                                        Đã thanh toán
+                                        Đã duyệt
                                     </MenuItem>
                                     <MenuItem value={false} >
-                                        Chưa thanh toán
+                                        Chưa duyệt
                                     </MenuItem>
                                 </TextField>
 
@@ -278,14 +271,6 @@ const RoomFeeManager = () => {
                                         <FilterAltOffIcon />
                                     </Button>
                                 </Tooltip>
-                            </div>
-                            <div className='flex mt-2 mx-2 justify-end'>
-                                <TextField
-                                    label="Nhập tên sinh viên, mã số"
-                                    fullWidth
-                                    sx={{ maxWidth: 300 }}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                />
                             </div>
                         </div>
 
@@ -297,23 +282,17 @@ const RoomFeeManager = () => {
                     <div className=' bg-white mx-5'>
                         <TableContainer component={Paper}>
                             <Table sx={{ minWidth: 650 }} aria-label="caption table">
-                                <caption>
-                                    Tổng số tiền cần thu: {data?.totalRoomFee ? data.totalRoomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "N/A"}
-                                    &emsp;&emsp;&emsp;&emsp;
-                                    Số tiền đã thu: {data?.totalPaidRoomFee ? data.totalPaidRoomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "N/A"}
-                                    &emsp;&emsp;&emsp;&emsp;
-                                    Số tiền cần thu: {(data?.totalPaidRoomFee) ? (data.totalRoomFee - data.totalPaidRoomFee).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "N/A"}
-                                </caption>
+
                                 <TableHead>
                                     <TableRow>
                                         <TableCell align="center" className='border-r-2'>Họ và tên</TableCell>
                                         <TableCell align="center" className='border-r-2'>Mã số sinh viên</TableCell>
                                         <TableCell align="center" className='border-r-2'>Giới tính</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Mã phòng</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Mã khu vực</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Phòng nam/nữ</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Phí phòng</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Trạng thái</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Email</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Số điện thoại</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Ngày đăng ký</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Ngày duyệt đơn</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Hành động</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -322,15 +301,43 @@ const RoomFeeManager = () => {
                                             <TableCell align="center" className='border-r-2'>{e.student.fullName}</TableCell>
                                             <TableCell align="center" className='border-r-2'>{e.student.mssv}</TableCell>
                                             <TableCell align="center" className='border-r-2'>{e.student.gender}</TableCell>
-                                            <TableCell align="center" className='border-r-2'>{e.room.roomCode}</TableCell>
-                                            <TableCell align="center" className='border-r-2'>{e.room.building.areaCode}</TableCell>
-                                            <TableCell align="center" className='border-r-2'>{e.room.roomMale}</TableCell>
-                                            <TableCell align="center" className='border-r-2'>{e.roomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}đ</TableCell>
+                                            <TableCell align="center" className='border-r-2'>{e.student.email}</TableCell>
+                                            <TableCell align="center" className='border-r-2'>{e.student.numberPhone}</TableCell>
+                                            <TableCell align="center" className='border-r-2'>{new Date(e?.createdAt).toLocaleString('en-GB', {
+                                                hour: 'numeric',
+                                                minute: 'numeric',
+                                                second: 'numeric',
+                                                day: 'numeric',
+                                                month: 'numeric',
+                                                year: 'numeric',
+                                            })}</TableCell>
                                             <TableCell align="center" className='border-r-2'>
-                                                {e.paymentStatus
-                                                    ? (<span className='text-green-600 font-medium'>Đã thanh toán</span>)
-                                                    : (<span className='text-red-600 font-medium'>Chưa thanh toán</span>)
+                                                {e.status
+                                                    ? (<span className='text-green-600 font-medium'>
+                                                        {new Date(e?.updatedAt).toLocaleString('en-GB', {
+                                                hour: 'numeric',
+                                                minute: 'numeric',
+                                                second: 'numeric',
+                                                day: 'numeric',
+                                                month: 'numeric',
+                                                year: 'numeric',
+                                            })}
+                                                    </span>)
+                                                    : (<span className='text-red-600 font-medium'>Chưa duyệt</span>)
                                                 } </TableCell>
+                                            <TableCell align="center" className='border-r-2'>
+                                                <Button
+                                                    variant='contained'
+                                                    color='success'
+                                                    size='small'
+                                                    sx={{ marginX: 1 }}
+                                                    disabled={e.status}
+                                                    onClick={() => { updateStatusFormCheckOut(e?.id, { status: true }); setId(e?.id); }}
+                                                >
+                                                    Chấp nhận
+                                                </Button>
+                                            </TableCell>
+
                                         </TableRow>
                                     )) :
                                         (
@@ -352,6 +359,7 @@ const RoomFeeManager = () => {
                                 onChange={handleChangePage} />
                         </Stack>
                     </div>
+
                 </div>
             </Box>
         </ThemeProvider>
@@ -360,4 +368,4 @@ const RoomFeeManager = () => {
 }
 
 
-export default RoomFeeManager;
+export default CheckOutManager;

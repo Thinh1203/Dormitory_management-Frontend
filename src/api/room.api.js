@@ -96,6 +96,23 @@ export const getAllSchoolYear = async () => {
 }
 
 
+export const getListRoom = async (query) => {
+  try {
+    const token = localStorage.getItem("token");
+    const headers = {
+      'Authorization': `Bearer ${token}`
+    };
+    const queryParams = {
+      id: query.id
+    };
+
+    const result = await instance.get("/room/getList", { params: queryParams, headers });
+    return result;
+  } catch (error) {
+    return error;
+  }
+}
+
 export const addNewSchoolYear = async (data) => {
   try {
 

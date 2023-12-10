@@ -26,6 +26,7 @@ import SuccessPage from "../pages/SuccessPage";
 import RuleManager from "../pages/adminDashboard/RuleManager";
 import ReceiptManager from "../pages/adminDashboard/ReceiptManager";
 import StatisticalManager from "../pages/adminDashboard/StatisticalReceipt";
+import CheckOutManager from "../pages/adminDashboard/CheckOutManager";
 
 const routers = [
     { path: "/", component: LoginPage },
@@ -54,6 +55,7 @@ const routers = [
     { path: "/admin/dashboard/danhsachphong/chitiet", component: RoomDetailsInformation },
     { path: "/admin/dashboard/danhsachsinhvien", component: StudentManagerDashboard },
     { path: "/admin/dashboard/danhsachquanly", component: AdminManagerDashboard },
+    { path: "/admin/dashboard/danhsachtracho", component: CheckOutManager },
     { path: "/admin/dashboard/danhsachdondangky", component: RegisterFormManager },
     { path: "/*", component: ErrorPage }
 ];

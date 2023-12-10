@@ -4,19 +4,12 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import CssBaseline from '@mui/material/CssBaseline';
 import Navigator from '../../components/admindashboard/Navigator';
 import PropTypes from 'prop-types';
-import { Button, TextField, MenuItem, Dialog, DialogActions, Box, Paper, DialogContent, DialogContentText, DialogTitle, Divider, Stack, Pagination, Tooltip } from '@mui/material';
+import { TextField, MenuItem, Box, Divider } from '@mui/material';
 import { CustomTabPanel } from '../../utils/createTheme';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import { toast } from 'react-toastify';
-import { getAllReceipt, updateOne } from '../../api/receipt.api';
-import { listMonth } from '../../utils/data';
-import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+import { statistical } from '../../api/receipt.api';
 import { getAllSchoolYear } from '../../api/room.api';
+import BarChart from '../../components/admindashboard/BarChart';
+
 
 
 CustomTabPanel.propTypes = {
@@ -24,11 +17,6 @@ CustomTabPanel.propTypes = {
     index: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
 };
-
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-}
-
 
 
 let theme = createTheme({
@@ -184,50 +172,58 @@ const drawerWidth = 256;
 const StatisticalManager = () => {
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
-    const [search, setSearch] = React.useState("");
-    const [filter, setFilter] = React.useState({
-        month: '',
-        schoolyearId: '',
-        paymentStatus: '',
-    });
-    const [currentPage, setCurrentPage] = React.useState(1);
-    const [data, setData] = React.useState([]);
-    const [id, setId] = React.useState(0);
+    const [schoolyearId, setSchoolyearId] = React.useState(1);
     const [listSchoolYear, setListSchoolYear] = React.useState([]);
-
+    const [data, setData] = React.useState({ labels: [], datasets: [] });
+    const [check, setCheck] = React.useState(false);
+    const [total, setTotal] = React.useState(0);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
-    };
-
-    const updateOneReceipt = async (id, data) => {
-        const res = await updateOne(id, data);
-        if(res?.status === 200) {
-            setId(id);
-            return toast.success('Đã thanh toán!', { position: "bottom-right", autoClose: 1000 });
-        }
-    }
-
-    const handleChangePage = (event, newPage) => {
-        setCurrentPage(newPage);
     };
 
     React.useEffect(() => {
         const fetchApi = async () => {
             const res = await getAllSchoolYear();
             setListSchoolYear(res.data)
+
         };
-        fetchApi(); 
+        fetchApi();
     }, []);
 
     React.useEffect(() => {
         const fetchData = async () => {
-            const res = await getAllReceipt(currentPage, filter, search);
-            setData(res.data);
-            console.log(res.data);
+            const res = await statistical(schoolyearId);
+            if (res?.status === 200) {
+                setData({
+                    labels: res?.data?.groupedData?.map((e) => e.month),
+                    datasets: [{
+                        label: "Sơ đồ thống kê doanh thu tiền điện nước theo năm học - học kỳ",
+                        data: res?.data?.groupedData?.map((e) => e.total),
+                        backgroundColor: [
+                            "rgb(75,192,192,1)",
+                            "#ecf0f1",
+                            "#50AF95",
+                            "#f3ba2f",
+                            "#2a71d0",
+                            "#C71585",
+                            "#800080"
+                        ],
+                        borderColor: "black",
+                        borderWidth: 2
+                    }]
+                });
+                setTotal(res.data.totalAmountReceived);
+                setCheck(true);
+                return;
+            } else {
+                setCheck(false);
+                return
+            }
         };
         fetchData();
-    }, [currentPage, filter, search, id]);
+    }, [schoolyearId]);
+
     return (
         <ThemeProvider theme={theme}>
             <Box sx={{ display: 'flex', minHeight: '100vh' }}>
@@ -259,52 +255,26 @@ const StatisticalManager = () => {
                             <div className='flex mt-2 mx-2 justify-start'>
                                 <h2 className='font-semibold text-2xl text-blue-600 mt-2'> Thống kê tiền điện nước </h2>
                             </div>
+                            <div className='flex mt-2 mx-2 justify-start'>
+                                <h2 className='font-semibold text-2xl mt-2 text-green-600 '> Tổng thu: </h2> <span className='mt-3 text-xl ml-2'>{check ? total.toLocaleString('en-US') + 'đ' : '0đ'}</span>
+                            </div>
                             <div className='flex mt-2 mx-2 justify-end'>
                                 <TextField
                                     select
                                     label="Năm học - học kỳ"
-                                    value={(filter.schoolyearId === '') ? '' : filter.schoolyearId}
+                                    value={(schoolyearId !== '') ? schoolyearId : ''}
                                     sx={{ maxWidth: 300 }}
                                     fullWidth
-                                    onChange={(e) => setFilter({ ...filter, schoolyearId: e.target.value })}
-                                >
-                                  {
-                                    listSchoolYear && listSchoolYear?.map((e, index) => (
-                                        <MenuItem key={index} value={e.id}>
-                                            Năm học {e.year} - học kỳ {e.semester}
-                                        </MenuItem>
-                                    ))
-                                  }
-                                </TextField>
-                            </div>
-
-                            <div className='flex my-2'>
-                                <TextField
-                                    select
-                                    label="Tháng"
-                                    value={(filter.month === '') ? '' : filter.month}
-                                    sx={{ maxWidth: 300 }}
-                                    fullWidth
-                                    onChange={(e) => setFilter({ ...filter, month: e.target.value })}
+                                    onChange={(e) => setSchoolyearId(e.target.value)}
                                 >
                                     {
-                                        listMonth.map((e, index) => (
-                                            <MenuItem key={index} value={e}>
-                                                Tháng {e}
+                                        listSchoolYear && listSchoolYear?.map((e, index) => (
+                                            <MenuItem key={index} value={e.id}>
+                                                Năm học {e.year} - học kỳ {e.semester}
                                             </MenuItem>
                                         ))
                                     }
                                 </TextField>
-                                <Tooltip title="Bỏ lọc" placement="top" onClick={() => setFilter({
-                                    month: '',
-                                    schoolyearId: '',
-                                    paymentStatus: '',
-                                })}>
-                                    <Button variant='contained' size='large' sx={{ paddingY: 2, marginLeft: 1, maxHeight: 54 }}>
-                                        <FilterAltOffIcon />
-                                    </Button>
-                                </Tooltip>
-
                             </div>
 
                         </div>
@@ -315,87 +285,7 @@ const StatisticalManager = () => {
                         <Divider />
                     </div>
                     <div className=' bg-white mx-5'>
-                        <TableContainer component={Paper}>
-                            <Table sx={{ minWidth: 650 }} aria-label="caption table">
-                                {/* <caption>
-                                    Tổng số tiền thu được: {data?.totalReceipt ? data.totalReceipt.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "0đ"}
-                                </caption> */}
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell align="center" className='border-r-2'>Mã phòng</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Khu vực</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Tháng</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Năm học</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Học kỳ</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Tiền điện</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Tiền nước</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Tổng số tiền</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Trạng thái thanh toán</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Ngày thanh toán</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Hành động</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {data ? data?.data?.map((e) => (
-                                        <TableRow key={e.id}>
-                                            <TableCell align="center" className='border-r-2'>{e.room.roomCode}</TableCell>
-                                            <TableCell align="center" className='border-r-2'>{e.room.building.areaCode}</TableCell>
-                                            <TableCell align="center" className='border-r-2'>{e.month}</TableCell>
-                                            <TableCell align="center" className='border-r-2'>{e.schoolyear.year}</TableCell>
-                                            <TableCell align="center" className='border-r-2'>{e.schoolyear.semester}</TableCell>
-                                            <TableCell align="center" className='border-r-2'>{e.receipt.totalElectricityBill.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + 'đ'}</TableCell>
-                                            <TableCell align="center" className='border-r-2'>{e.receipt.totalWaterBill.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + 'đ'}</TableCell>
-                                            <TableCell align="center" className='border-r-2'>{e.receipt.totalBill.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + 'đ'}</TableCell>
-                                            <TableCell align="center" className='border-r-2'>
-                                                {e.receipt.paymentStatus ?
-                                                    (<p className='text-green-600 font-medium'>Đã thanh toán</p>) :
-                                                    (<p className='text-red-600 font-medium'>Chưa thanh toán</p>)
-                                                }
-                                            </TableCell>
-                                            <TableCell align="center" className='border-r-2'>
-                                                {e.receipt.paymentStatus ?
-                                                    (<p className='text-blue-600 font-semibold'>
-                                                        {new Date(e.receipt.updatedAt).toLocaleString('en-GB', {
-                                                            hour: 'numeric',
-                                                            minute: 'numeric',
-                                                            second: 'numeric',
-                                                            day: 'numeric',
-                                                            month: 'numeric',
-                                                            year: 'numeric',
-                                                        })}
-                                                    </p>) : ''}
-                                            </TableCell>
-                                            <TableCell align="center" className='border-r-2'>
-                                                <Button
-                                                    variant='outlined'
-                                                    size='small'
-                                                    disabled={e.receipt.paymentStatus}
-                                                    onClick={() => updateOneReceipt(e.receipt.id, { paymentStatus: true })}
-                                                >
-                                                    Xác nhận
-                                                </Button>
-                                            </TableCell>
-
-                                        </TableRow>
-                                    )) :
-                                        (
-                                            <TableRow>
-                                                <TableCell colSpan={12} align="center" component="th" scope="row" style={{ padding: "4px", color: "red", fontSize: "20px" }}>
-                                                    Không có dữ liệu
-                                                </TableCell>
-                                            </TableRow>
-                                        )
-                                    }
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                        <Stack spacing={2} padding={2} className='flex justify-center items-center'>
-                            <Pagination count={Math.ceil(data?.total / data?.data_per_page)}
-                                page={currentPage}
-                                // rowsPerPage={data?.data_per_page}
-                                color="primary"
-                                onChange={handleChangePage} />
-                        </Stack>
+                        {check ? (<BarChart charData={data} />) : (<p className='text-2xl text-red-600 font-semibold flex justify-center'>Không có dữ liệu</p>)}
                     </div>
                 </div>
             </Box>

@@ -27,7 +27,7 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AddchartIcon from '@mui/icons-material/Addchart';
 import EditNoteIcon from '@mui/icons-material/EditNote';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -66,6 +66,7 @@ const Navigator = (props) => {
             </i>
           </span>
         </ListItem>
+        
         <ListItem sx={{ ...item, ...itemCategory }}>
           <ListItemIcon>
             <AccountBoxIcon />
@@ -102,6 +103,16 @@ const Navigator = (props) => {
             </ListItemButton>
           </ListItem>
         </Box>
+        <Box sx={{ bgcolor: '#1D2C40' }}>
+            <ListItem disablePadding>
+              <ListItemButton sx={item} component={Link} to="/admin/dashboard/thongke">
+                <ListItemIcon>
+                  <AddchartIcon />
+                </ListItemIcon>
+                <ListItemText>Thống kê hóa đơn</ListItemText>
+              </ListItemButton>
+            </ListItem>
+          </Box>
         <Box sx={{ bgcolor: '#101F33' }}>
           <ListItem disablePadding>
             <ListItemButton sx={item} component={Link} to="/admin/dashboard/danhsachquanly">
@@ -125,14 +136,15 @@ const Navigator = (props) => {
             </ListItemButton>
           </ListItem>
         </Box>
+        
         <Collapse in={open2} timeout="auto" unmountOnExit>
           <Box sx={{ bgcolor: '#1D2C40' }}>
             <ListItem disablePadding sx={{ marginLeft: 1 }}>
-              <ListItemButton sx={item} component={Link} to="/admin/dashboard/thongke">
+              <ListItemButton sx={item} component={Link} to="/admin/dashboard/danhsachtracho">
                 <ListItemIcon>
-                  <AddchartIcon />
+                  <FactCheckIcon />
                 </ListItemIcon>
-                <ListItemText>Thống kê hóa đơn</ListItemText>
+                <ListItemText>Đơn đăng ký trả chỗ</ListItemText>
               </ListItemButton>
             </ListItem>
           </Box>

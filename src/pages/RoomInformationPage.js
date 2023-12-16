@@ -4,8 +4,7 @@ import Header from "../components/Header";
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getInformationStudentInRoom } from "../api/room.api";
-import axios from "axios";
-import { getRoomReceipt } from "../api/receipt.api";
+import { getRoomReceipt, updateOne } from "../api/receipt.api";
 import { checkStudentRoom } from "../api/registrationForm.api";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -14,11 +13,12 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { addNewCheckOut, getOneFormCheckOut } from "../api/checkout.api";
 import { toast } from "react-toastify";
-
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { updateStatusRoomFree } from "../api/payment.api";
 
 const RoomInformationPage = () => {
-    const [data, setData] = React.useState({});
-    const [paymentData, setPaymentData] = React.useState({});
+    const [dataRoom, setDataRoom] = React.useState({});
+    const [reset, setReset] = React.useState(0);
     const [receipt, setReceipt] = React.useState([]);
     const [checkStudentInRoom, setCheckStudentInRoom] = React.useState(false);
     const [checkFromCheckOut, setCheckFromCheckOut] = React.useState(false);
@@ -29,11 +29,11 @@ const RoomInformationPage = () => {
     const sendFormCheckOut = async () => {
         const res = await addNewCheckOut();
         if (res.status === 200) {
+            setReset(3);
             setOpen(false);
             return toast.success('Đã gửi đơn đăng ký trả chỗ!', { position: "bottom-right", autoClose: 1000 });
         }
     };
-
     useEffect(() => {
         const checkStudentInRoom = async () => {
             const res = await checkStudentRoom();
@@ -50,18 +50,19 @@ const RoomInformationPage = () => {
             if (res?.status === 200) {
                 setCheckFromCheckOut(true);
                 setFormData(res.data);
+
             }
         };
         checkOut();
-    }, []);
+    }, [reset]);
 
     useEffect(() => {
         const fetchApi = async () => {
             const res = await getInformationStudentInRoom();
-            setData(res.data);
+            setDataRoom(res.data);
         };
         fetchApi();
-    }, []);
+    }, [reset]);
 
     useEffect(() => {
         const fetchReceipt = async () => {
@@ -69,18 +70,8 @@ const RoomInformationPage = () => {
             setReceipt(res.data);
         };
         fetchReceipt();
-    }, []);
+    }, [reset]);
 
-
-    const handlePayment = async () => {
-        try {
-            const response = await axios.post("http://localhost:8088/api/payment/pay", paymentData);
-            console.log(response.data);
-            window.location.href = response.data.approval_url
-        } catch (error) {
-            console.error("Error during payment:", error);
-        }
-    };
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -94,7 +85,7 @@ const RoomInformationPage = () => {
                             </h2>
                             {
                                 checkStudentInRoom &&
-                                (!formData?.status ?
+                                ((checkFromCheckOut && !formData?.status) ?
                                     (<h2 className="px-6 text-yellow-500 text-lg sm:text-md font-semibold underline">
                                         Đã đăng ký trả chỗ
                                     </h2>) : (<button onClick={() => setOpen(true)} className="px-6 text-blue-500 text-lg sm:text-md font-semibold underline hover:text-green-500 hover:cursor-pointer">
@@ -135,13 +126,13 @@ const RoomInformationPage = () => {
                                         Loại phòng đăng ký
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {data !== undefined ? data?.room?.room?.roomType : " "}
+                                        {dataRoom !== undefined ? dataRoom?.room?.room?.roomType : " "}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs  font-semibold">
                                         Mã tòa nhà
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {data !== undefined ? data?.room?.room?.building?.areaCode : " "}
+                                        {dataRoom !== undefined ? dataRoom?.room?.room?.building?.areaCode : " "}
                                     </td>
                                 </tr>
 
@@ -150,13 +141,13 @@ const RoomInformationPage = () => {
                                         Phòng
                                     </td>
                                     <td className="px-6 py- sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {data !== undefined ? data?.room?.room?.roomCode : " "}
+                                        {dataRoom !== undefined ? dataRoom?.room?.room?.roomCode : " "}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs  font-semibold">
                                         Giá phòng
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {data !== undefined ? (data?.room?.room?.price?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ/tháng") : " "}
+                                        {dataRoom !== undefined ? (dataRoom?.room?.room?.price?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ/tháng") : " "}
                                     </td>
                                 </tr>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -164,13 +155,13 @@ const RoomInformationPage = () => {
                                         Ngày đăng ký
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {data !== undefined ? (new Date(data?.registrationForm?.createdAt).toLocaleDateString('en-GB')) : " "}
+                                        {dataRoom !== undefined ? (new Date(dataRoom?.registrationForm?.createdAt).toLocaleDateString('en-GB')) : " "}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs  font-semibold">
                                         Số tháng đăng ký
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {data !== undefined ? data?.registrationForm?.registrationTime : " "}
+                                        {dataRoom !== undefined ? dataRoom?.registrationForm?.registrationTime : " "}
                                     </td>
                                 </tr>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -178,41 +169,64 @@ const RoomInformationPage = () => {
                                         Ngày được duyệt
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        {data !== undefined ? (new Date(data?.room?.createdAt).toLocaleDateString('en-GB')) : " "}
+                                        {dataRoom !== undefined ? (new Date(dataRoom?.room?.createdAt).toLocaleDateString('en-GB')) : " "}
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs  font-semibold">
                                         Tổng phí phòng
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800 font-medium">
-                                        {data !== undefined ? (data?.room?.roomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")) : " "}
+                                        {dataRoom !== undefined ? (dataRoom?.room?.roomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ") : " "}
                                     </td>
                                 </tr>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
                                     <td className="px-6 py-2 sm:text-sm text-xs  font-semibold">
                                         Trạng thái thanh toán
                                     </td>
-                                    <td className={`px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800 font-medium ${(data !== undefined && data?.room?.paymentStatus) ? 'text-green-600' : 'text-red-500'}`}>
-                                        {data === undefined ? " " : (data?.room?.paymentStatus ? "Đã thanh toán" : "Chưa thanh toán")}                                    </td>
+                                    <td className={`px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800 font-medium ${(dataRoom !== undefined && dataRoom?.room?.paymentStatus) ? 'text-green-600' : 'text-red-500'}`}>
+                                        {dataRoom === undefined ? " " : (dataRoom?.room?.paymentStatus ? "Đã thanh toán" : "Chưa thanh toán")}                                    </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs font-semibold">
                                         Thanh toán
                                     </td>
                                     <td className="px-6 py-2 sm:text-sm text-xs bg-gray-50 dark:bg-gray-800">
-                                        <Button
-                                            onClick={
-                                                () => {
-                                                    setPaymentData({
-                                                        title: "Thanh toán phí phòng.",
-                                                        amount: data?.room?.roomFee,
-                                                        sku: data?.room?.id
-                                                    });
-                                                    handlePayment();
-                                                }
-                                            }
-                                            variant="contained"
-                                            disabled={(data === undefined ? true : (data?.room?.paymentStatus))}
-                                        >
-                                            Thanh toán
-                                        </Button>
+                                        {
+                                            dataRoom !== undefined ? dataRoom?.room?.paymentStatus ? (<Button
+
+                                                variant="contained"
+                                                disabled={true}
+                                            >
+                                                Thanh toán
+                                            </Button>) : (
+                                                <PayPalScriptProvider options={{ clientId: "ASCXkNrghSUKpICkgEvv7OaWl3kvRCxyAxocz9xpqE0BrIu6VEnxlOOnUPpfb0EfVl02QiwSRleqQjqE" }}>
+                                                    <PayPalButtons
+                                                        style={{ layout: "horizontal" }}
+                                                        createOrder={(data, actions) => {
+                                                            return actions.order.create({
+                                                                purchase_units: [
+                                                                    {
+                                                                        description: `Thanh toán phí phòng ${dataRoom?.room?.room?.roomCode} khu ${dataRoom?.room?.room?.building?.areaCode}`,
+                                                                        amount: {
+                                                                            value: `${(dataRoom?.room?.roomFee / 24000).toFixed(2)}`,
+                                                                            currency_code: "USD",
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            });
+                                                        }}
+                                                        onApprove={(data, actions) => {
+                                                            return actions.order ? actions.order?.capture().then((detail) => {
+                                                                if (detail.status === "COMPLETED") {
+                                                                    toast.success("Thanh toán thành công", { position: "bottom-right", autoClose: 1000 });
+                                                                    const res = updateStatusRoomFree({ paymentStatus: true });
+                                                                    setReset(1);
+                                                                } else {
+                                                                    toast.error("Thanh toán thất bại", { position: "bottom-right", autoClose: 1000 });
+                                                                }
+                                                            }) : Promise.resolve();
+                                                        }}
+                                                    />
+                                                </PayPalScriptProvider>
+                                            ) : ' '
+                                        }
                                     </td>
                                 </tr>
                             </tbody>
@@ -277,9 +291,48 @@ const RoomInformationPage = () => {
                                                     }) : "Chưa đóng"}
                                                 </td>
                                                 <td rowSpan={2} className="px-6 py-2 text-xl text-center bg-gray-50 dark:bg-gray-800">
-                                                    <Button variant="contained" disabled={e.receipt.paymentStatus}>
+                                                    {/* <Button variant="contained" disabled={e.receipt.paymentStatus}>
                                                         Thanh toán
-                                                    </Button>
+                                                    </Button> */}
+                                                    {
+                                                        e.receipt.paymentStatus ? (<Button
+
+                                                            variant="contained"
+                                                            disabled={true}
+                                                        >
+                                                            Thanh toán
+                                                        </Button>) : (
+                                                            <PayPalScriptProvider options={{ clientId: "ASCXkNrghSUKpICkgEvv7OaWl3kvRCxyAxocz9xpqE0BrIu6VEnxlOOnUPpfb0EfVl02QiwSRleqQjqE" }}>
+                                                                <PayPalButtons
+                                                                    style={{ layout: "horizontal" }}
+                                                                    createOrder={(data, actions) => {
+                                                                        return actions.order.create({
+                                                                            purchase_units: [
+                                                                                {
+                                                                                    description: `Thanh toán tiền điện nước tháng ${e.month} năm học ${e.schoolyear.year} - học kỳ ${e.schoolyear.semester}`,
+                                                                                    amount: {
+                                                                                        value: `${(e.receipt.totalBill / 24000).toFixed(2)}`,
+                                                                                        currency_code: "USD",
+                                                                                    }
+                                                                                }
+                                                                            ]
+                                                                        });
+                                                                    }}
+                                                                    onApprove={(data, actions) => {
+                                                                        return actions.order ? actions.order?.capture().then((detail) => {
+                                                                            if (detail.status === "COMPLETED") {
+                                                                                toast.success("Thanh toán thành công", { position: "bottom-right", autoClose: 1000 });
+                                                                                const res = updateOne(e.receipt.id, { paymentStatus: true });
+                                                                                setReset(2);
+                                                                            } else {
+                                                                                toast.error("Thanh toán thất bại");
+                                                                            }
+                                                                        }) : Promise.resolve();
+                                                                    }}
+                                                                />
+                                                            </PayPalScriptProvider>
+                                                        )
+                                                    }
                                                 </td>
                                             </tr>
                                             <tr className="border-b border-gray-200 dark:border-gray-700" >

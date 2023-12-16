@@ -198,7 +198,7 @@ const StatisticalManager = () => {
                 setData({
                     labels: res?.data?.groupedData?.map((e) => e.month),
                     datasets: [{
-                        label: "Sơ đồ thống kê doanh thu tiền điện nước theo năm học - học kỳ",
+                        label: "Sơ đồ thống kê doanh thu tiền điện nước theo tháng trong từng năm học - học kỳ",
                         data: res?.data?.groupedData?.map((e) => e.total),
                         backgroundColor: [
                             "rgb(75,192,192,1)",

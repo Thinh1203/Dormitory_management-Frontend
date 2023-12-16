@@ -16,11 +16,10 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
-import RefreshIcon from '@mui/icons-material/Refresh';
+import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
 import EditIcon from '@mui/icons-material/Edit';
-import { addRoom, deleteRoom, getRoomInformation, getRoomList, updateInformationRoom } from '../../api/room.api';
+import { addRoom, deleteRoom, getRoomInformation, getRoomList, resetAllRoom, updateInformationRoom } from '../../api/room.api';
 import { toast } from 'react-toastify';
 import { actualCapacity, capacity, ListRoomType } from '../../utils/data';
 import { Link } from 'react-router-dom';
@@ -195,12 +194,13 @@ const RoomManagerDashboard = () => {
     const [search, setSearch] = React.useState("");
     const [filter, setFilter] = React.useState({ areaCode: "" });
     const [dataRoomList, setDataRoomList] = React.useState([]);
+    const [resetRoom, setResetRoom] = React.useState(false);
     const [dataBuildingList, setDataBuildingList] = React.useState([]);
     const [id, setId] = React.useState(0);
     const [addNewRoom, setAddNewRoom] = React.useState({ roomCode: "", roomType: "", capacity: 0, actualCapacity: 0, roomMale: "", kitchen: "", price: 0, buildingId: 0 });
     const [updateRoom, setUpdateRoom] = React.useState({ roomCode: "", roomType: "", capacity: 0, actualCapacity: 0, roomMale: "", kitchen: "", price: 0, status: "" });
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
-    
+
 
     const fetchApiListRoom = async () => {
         const res = await getRoomList(currentPage, search, filter);
@@ -265,6 +265,16 @@ const RoomManagerDashboard = () => {
 
     }
 
+    const handleResetRoom = async () => {
+        const res = await resetAllRoom({ status: true });
+        if (res?.status === 200) {
+            setResetRoom(false);
+            return toast.success("Cập nhật thành công!", { position: "bottom-right", autoClose: 1000 });
+        } else {
+            return toast.error("Có lỗi xảy ra!", { position: "bottom-right", autoClose: 1000 });
+        }
+    };
+
     const handleDelete = async () => {
         const res = await deleteRoom(id);
         if (res.status === 200) {
@@ -280,7 +290,7 @@ const RoomManagerDashboard = () => {
 
     React.useEffect(() => {
         fetchApiListRoom();
-    }, [currentPage, search, filter, id, openAddRoom]);
+    }, [currentPage, search, filter, id, openAddRoom, resetRoom]);
 
     React.useEffect(() => {
         const fetchApiListBuilding = async () => {
@@ -290,7 +300,7 @@ const RoomManagerDashboard = () => {
         fetchApiListBuilding();
     }, []);
 
- 
+
 
     return (
         <ThemeProvider theme={theme}>
@@ -341,6 +351,32 @@ const RoomManagerDashboard = () => {
                                         <FilterAltOffIcon />
                                     </Button>
                                 </Tooltip>
+                                <Tooltip title="Cập nhật phòng" placement="top" onClick={() => setResetRoom(true)}>
+                                    <Button variant='contained' color='warning' size='large' sx={{ paddingY: 2, marginLeft: 1, maxHeight: 54 }}>
+                                        <SettingsBackupRestoreIcon />
+                                    </Button>
+                                </Tooltip>
+                                <Dialog
+                                    open={resetRoom}
+                                    aria-labelledby="alert-dialog-title"
+                                    aria-describedby="alert-dialog-description"
+                                >
+                                    <DialogTitle id="alert-dialog-title" className='text-yellow-500 font-semibold'>
+                                        Cập nhật lại toàn bộ phòng?
+                                    </DialogTitle>
+                                    <DialogContent>
+                                        <DialogContentText id="alert-dialog-description">
+                                            Cập nhật lại toàn bộ trạng thái của phòng.
+                                            Sau khi cập nhật các phòng sẽ trở lại trạng thái trống như ban đầu.
+                                        </DialogContentText>
+                                    </DialogContent>
+                                    <DialogActions>
+                                        <Button onClick={() => setResetRoom(false)}>Đóng lại</Button>
+                                        <Button onClick={() => handleResetRoom()} autoFocus>
+                                            Đồng ý
+                                        </Button>
+                                    </DialogActions>
+                                </Dialog>
                             </div>
                             <div className='flex mt-2 mx-2 justify-end'>
                                 <TextField

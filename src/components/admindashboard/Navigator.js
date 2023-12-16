@@ -103,7 +103,7 @@ const Navigator = (props) => {
             </ListItemButton>
           </ListItem>
         </Box>
-        <Box sx={{ bgcolor: '#1D2C40' }}>
+        <Box sx={{ bgcolor: '#101F33' }}>
             <ListItem disablePadding>
               <ListItemButton sx={item} component={Link} to="/admin/dashboard/thongke">
                 <ListItemIcon>
@@ -139,7 +139,7 @@ const Navigator = (props) => {
         
         <Collapse in={open2} timeout="auto" unmountOnExit>
           <Box sx={{ bgcolor: '#1D2C40' }}>
-            <ListItem disablePadding sx={{ marginLeft: 1 }}>
+            <ListItem disablePadding >
               <ListItemButton sx={item} component={Link} to="/admin/dashboard/danhsachtracho">
                 <ListItemIcon>
                   <FactCheckIcon />
@@ -149,7 +149,7 @@ const Navigator = (props) => {
             </ListItem>
           </Box>
           <Box sx={{ bgcolor: '#1D2C40' }}>
-            <ListItem disablePadding sx={{ marginLeft: 1 }}>
+            <ListItem disablePadding>
               <ListItemButton sx={item} component={Link} to="/admin/dashboard/danhsachdondangky">
                 <ListItemIcon>
                   <LibraryBooksIcon />
@@ -185,7 +185,7 @@ const Navigator = (props) => {
         </Box>
         <Collapse in={open} timeout="auto" unmountOnExit>
           <Box sx={{ bgcolor: '#1D2C40' }}>
-            <ListItem disablePadding sx={{ marginLeft: 1 }}>
+            <ListItem disablePadding>
               <ListItemButton sx={item} component={Link} to="/admin/dashboard/tiendiennuoc">
                 <ListItemIcon>
                   <MoreVertIcon />
@@ -195,7 +195,7 @@ const Navigator = (props) => {
             </ListItem> 
           </Box>
           <Box sx={{ bgcolor: '#1D2C40' }}>
-            <ListItem disablePadding sx={{ marginLeft: 1 }}>
+            <ListItem disablePadding>
               <ListItemButton sx={item} component={Link} to="/admin/dashboard/phiphongo">
                 <ListItemIcon>
                   <PriceCheckIcon />

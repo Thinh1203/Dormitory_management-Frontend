@@ -13,7 +13,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { toast } from 'react-toastify';
-import { addNewReceipt, getAllReceipt, getOneReceipt, updateOne } from '../../api/receipt.api';
+import { addNewReceipt, getAllReceipt, getOneReceipt, updateOne, uploadFileData } from '../../api/receipt.api';
 import { listMonth } from '../../utils/data';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import { getAllSchoolYear, getListRoom } from '../../api/room.api';
@@ -210,7 +210,7 @@ const ReceiptManager = () => {
         schoolyearId: ''
     });
     const [list, setList] = React.useState([]);
-
+    const [reset, setReset] = React.useState(0);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -269,6 +269,14 @@ const ReceiptManager = () => {
     const handleChangePage = (event, newPage) => {
         setCurrentPage(newPage);
     };
+    const handleFileChange = async (event) => {
+        const file = event.target.files[0];
+        const res = await uploadFileData(file);
+        if (res?.status === 200) {
+            setReset(1);
+            return toast.success("Thêm thành công!", { position: "bottom-right", autoClose: 1000 });
+        }
+    }
 
     React.useEffect(() => {
         const fetchApi = async () => {
@@ -301,7 +309,7 @@ const ReceiptManager = () => {
             setData(res.data);
         };
         fetchData();
-    }, [currentPage, filter, search, id, open]);
+    }, [currentPage, filter, search, id, open, reset]);
     return (
         <ThemeProvider theme={theme}>
             <Box sx={{ display: 'flex', minHeight: '100vh' }}>
@@ -408,11 +416,27 @@ const ReceiptManager = () => {
                                         <AddCircleIcon />
                                     </Button>
                                 </Tooltip>
-                                <Tooltip title="Tải tệp lên" placement="top" >
-                                    <Button variant='contained' size='large' color='warning' sx={{ paddingY: 2, marginLeft: 1, maxHeight: 54 }}>
-                                        <DriveFolderUploadIcon />
-                                    </Button>
-                                </Tooltip>
+                                <div>
+                                    <Tooltip title="Tải tệp lên" placement="top">
+                                        <Button
+                                            variant="contained"
+                                            size="large"
+                                            color="warning"
+                                            sx={{ paddingY: 2, marginLeft: 1, maxHeight: 54 }}
+                                        >
+                                            <label htmlFor="file-upload" style={{ cursor: 'pointer' }}>
+                                                <DriveFolderUploadIcon />
+                                            </label>
+                                        </Button>
+                                    </Tooltip>
+
+                                    <input
+                                        id="file-upload"
+                                        type="file"
+                                        style={{ display: 'none' }}
+                                        onChange={handleFileChange}
+                                    />
+                                </div>
                                 <Dialog open={open} >
                                     <DialogTitle color='blue'>Ghi chỉ số điện nước</DialogTitle>
                                     <DialogContent sx={{ width: 600 }}>

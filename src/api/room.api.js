@@ -258,3 +258,18 @@ export const getAllRoomStudent = async (page, filter, search) => {
     return error;
   }
 }
+
+
+export const resetAllRoom = async (data) => {
+  try {
+    const token = localStorage.getItem("token");
+    const headers = {
+      'Authorization': `Bearer ${token}`
+    };
+    const result = await instance.patch("/room/resetAll", data, { headers });
+
+    return result;
+  } catch (error) {
+    return error;
+  }
+}

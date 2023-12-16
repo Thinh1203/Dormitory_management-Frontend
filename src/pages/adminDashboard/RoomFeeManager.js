@@ -4,7 +4,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import CssBaseline from '@mui/material/CssBaseline';
 import Navigator from '../../components/admindashboard/Navigator';
 import PropTypes from 'prop-types';
-import { Button, TextField, MenuItem, Dialog, DialogActions, Box, Paper, DialogContent, DialogContentText, DialogTitle, Divider, Stack, Pagination, Tooltip } from '@mui/material';
+import { Button, TextField, MenuItem,  Box, Paper, Divider, Stack, Pagination, Tooltip } from '@mui/material';
 import { CustomTabPanel } from '../../utils/createTheme';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -13,24 +13,9 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
-import { getAllForm, getOneDetail, updateOne } from '../../api/registrationForm.api';
-import { toast } from 'react-toastify';
 import { getAllRoomStudent } from '../../api/room.api';
 
-const names = [
-    {
-        id: 0,
-        title: 'Chờ duyệt'
-    },
-    {
-        id: 1,
-        title: 'Đã duyệt'
-    },
-    {
-        id: 2,
-        title: 'Đã từ chối'
-    }
-];
+
 
 
 CustomTabPanel.propTypes = {
@@ -39,15 +24,7 @@ CustomTabPanel.propTypes = {
     value: PropTypes.number.isRequired,
 };
 
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-}
 
-const rows = [
-    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-];
 
 let theme = createTheme({
     palette: {
@@ -206,10 +183,8 @@ const RoomFeeManager = () => {
     const [filter, setFilter] = React.useState('');
     const [currentPage, setCurrentPage] = React.useState(1);
     const [data, setData] = React.useState([]);
-    const [detailForm, setDetailForm] = React.useState({});
-    const [open, setOpen] = React.useState(false);
 
-
+    
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
@@ -224,10 +199,10 @@ const RoomFeeManager = () => {
         const fetchData = async () => {
             const res = await getAllRoomStudent(currentPage, filter, search);
             setData(res.data);
-            // console.log(res.data);
         };
         fetchData();
     }, [currentPage, filter, search]);
+        
     return (
         <ThemeProvider theme={theme}>
             <Box sx={{ display: 'flex', minHeight: '100vh' }}>
@@ -298,11 +273,11 @@ const RoomFeeManager = () => {
                         <TableContainer component={Paper}>
                             <Table sx={{ minWidth: 650 }} aria-label="caption table">
                                 <caption>
-                                    Tổng số tiền cần thu: {data?.totalRoomFee ? data.totalRoomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "N/A"}
+                                    Tổng số tiền cần thu: {data?.totalRoomFee ? data.totalRoomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "0đ"}
                                     &emsp;&emsp;&emsp;&emsp;
-                                    Số tiền đã thu: {data?.totalPaidRoomFee ? data.totalPaidRoomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "N/A"}
+                                    Số tiền đã thu: {data?.totalPaidRoomFee ? data.totalPaidRoomFee.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "0đ"}
                                     &emsp;&emsp;&emsp;&emsp;
-                                    Số tiền cần thu: {(data?.totalPaidRoomFee) ? (data.totalRoomFee - data.totalPaidRoomFee).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "N/A"}
+                                    Số tiền cần thu: {(data?.totalPaidRoomFee) ? (data.totalRoomFee - data.totalPaidRoomFee).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : "0đ"}
                                 </caption>
                                 <TableHead>
                                     <TableRow>
@@ -313,11 +288,12 @@ const RoomFeeManager = () => {
                                         <TableCell align="center" className='border-r-2'>Mã khu vực</TableCell>
                                         <TableCell align="center" className='border-r-2'>Phòng nam/nữ</TableCell>
                                         <TableCell align="center" className='border-r-2'>Phí phòng</TableCell>
-                                        <TableCell align="center" className='border-r-2'>Trạng thái</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Trạng thái thanh toán</TableCell>
+                                        <TableCell align="center" className='border-r-2'>Ngày thanh toán</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {data ? data?.data?.map((e) => (
+                                    {(data) ? data?.data?.map((e) => (
                                         <TableRow key={e.id}>
                                             <TableCell align="center" className='border-r-2'>{e.student.fullName}</TableCell>
                                             <TableCell align="center" className='border-r-2'>{e.student.mssv}</TableCell>
@@ -331,6 +307,20 @@ const RoomFeeManager = () => {
                                                     ? (<span className='text-green-600 font-medium'>Đã thanh toán</span>)
                                                     : (<span className='text-red-600 font-medium'>Chưa thanh toán</span>)
                                                 } </TableCell>
+                                            <TableCell align="center" className='border-r-2'>
+                                                {
+                                                    e.paymentStatus ? (<span className='text-blue-600 font-medium'>{
+                                                        new Date(e.updatedAt).toLocaleString('en-GB', {
+                                                            hour: 'numeric',
+                                                            minute: 'numeric',
+                                                            second: 'numeric',
+                                                            day: 'numeric',
+                                                            month: 'numeric',
+                                                            year: 'numeric',
+                                                        })
+                                                    }</span>): ' '
+                                                }
+                                            </TableCell>
                                         </TableRow>
                                     )) :
                                         (

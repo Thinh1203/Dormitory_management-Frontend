@@ -106,3 +106,21 @@ export const statistical = async (schoolyearId) => {
         return error;
     }
 }
+
+export const uploadFileData = async (file) => {
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const token = localStorage.getItem("token");
+
+        const res = await instance.post("/receipt/uploadFile", formData, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return res;
+    } catch (error) {
+        return error;
+    }
+}

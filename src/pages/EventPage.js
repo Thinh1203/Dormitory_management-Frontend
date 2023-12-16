@@ -28,16 +28,17 @@ const EventPage = () => {
         setOneEvent({});
         setOpen(false);
     };
-    const handleChangePage = (newPage) => {
+    const handleChangePage = (event, newPage) => {
         setCurrentPage(newPage);
     };
     useEffect(() => {
         const fetchApi = async () => {
-            const res = await getAllNotification();
+            const res = await getAllNotification(currentPage);
             setEvent(res.data);
         }
         fetchApi();
     }, [currentPage]);
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} className="bg-gray-200">
             <Header />

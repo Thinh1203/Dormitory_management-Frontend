@@ -40,6 +40,7 @@ const RepairDevicePage = () => {
     const [open, setOpen] = React.useState(false);
     const [openAdd, setOpenAdd] = React.useState(false);
     const [check, setCheck] = React.useState(false);
+
     const [data, setData] = React.useState([]);
     const [listForm, setListForm] = React.useState([]);
     const [detailForm, setDetailForm] = React.useState({});
@@ -54,12 +55,12 @@ const RepairDevicePage = () => {
     };
 
     const handleSubmit = async () => {
-
         if (listRepair.length < 1)
-            return toast.error('Vui lòng điền đủ thông tin!', { position: "bottom-right", autoClose: 1000 });
+            return toast.error('Vui lòng chọn mã sửa chữa!', { position: "bottom-right", autoClose: 1000 });
         const res = await addNewForm(listRepair);
         if (res?.status === 200) {
             setOpenAdd(false);
+            
             return toast.success('Đăng ký thành công!', { position: "bottom-right", autoClose: 1000 });
         } else {
             return toast.error('Có lỗi xảy ra!', { position: "bottom-right", autoClose: 1000 });
@@ -70,7 +71,6 @@ const RepairDevicePage = () => {
         const fetchApi = async () => {
             const res = await getAllList();
             setData(res.data);
-
         };
         fetchApi();
     }, [openAdd]);
@@ -85,7 +85,7 @@ const RepairDevicePage = () => {
             setListForm(res.data)
         };
         checkFormRepair();
-    }, []);
+    }, [openAdd]);
 
     React.useEffect(() => {
         const checkStudentInRoom = async () => {

@@ -1,8 +1,5 @@
 import Slide from '@mui/material/Slide';
 import * as React from 'react';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import CssBaseline from '@mui/material/CssBaseline';
 import { Box } from '@mui/material';
 export const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
